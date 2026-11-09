@@ -2,8 +2,6 @@
 
 **Open-source AI Security Operations Center. Runs on your own machine.**
 
-> आवेक्षक (Aavekshak) — Sanskrit for "Inspector" / "One who oversees"
-
 Aavekshak reads every security alert for you, groups related ones into a single incident, investigates it with a local AI agent, and shows you its work — so the one attack that matters never gets buried under five thousand that don't.
 
 ```
@@ -96,6 +94,3 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). All contributors must agree to the [CLA]
 
 [MIT](LICENSE) — free to use, self-host, and modify.
 
----
-
-*MTech Open Source Software Project · BITS Pilani*
