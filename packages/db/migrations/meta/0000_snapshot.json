@@ -1,5 +1,5 @@
 {
-  "id": "62313b2d-438f-46fc-b74d-e4ba3a5a3297",
+  "id": "6d3a5d2c-66bb-4092-8bd9-e37ded6678db",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -62,6 +62,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "dedupe_key": {
+          "name": "dedupe_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -71,41 +77,11 @@
         }
       },
       "indexes": {
-        "alerts_event_id_idx": {
-          "name": "alerts_event_id_idx",
+        "alerts_dedupe_idx": {
+          "name": "alerts_dedupe_idx",
           "columns": [
             {
-              "expression": "event_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "alerts_ts_idx": {
-          "name": "alerts_ts_idx",
-          "columns": [
-            {
-              "expression": "ts",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "alerts_actor_ip_idx": {
-          "name": "alerts_actor_ip_idx",
-          "columns": [
-            {
-              "expression": "actor_ip",
+              "expression": "dedupe_key",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -183,7 +159,8 @@
           "name": "decided_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "note": {
           "name": "note",
@@ -308,8 +285,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "ingested_at": {
-          "name": "ingested_at",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
@@ -317,11 +294,11 @@
         }
       },
       "indexes": {
-        "events_ts_idx": {
-          "name": "events_ts_idx",
+        "events_source_idx": {
+          "name": "events_source_idx",
           "columns": [
             {
-              "expression": "ts",
+              "expression": "source",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -337,21 +314,6 @@
           "columns": [
             {
               "expression": "actor_ip",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "events_source_idx": {
-          "name": "events_source_idx",
-          "columns": [
-            {
-              "expression": "source",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -385,47 +347,9 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "linked_at": {
-          "name": "linked_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
-      "indexes": {
-        "incident_alerts_incident_idx": {
-          "name": "incident_alerts_incident_idx",
-          "columns": [
-            {
-              "expression": "incident_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "incident_alerts_alert_idx": {
-          "name": "incident_alerts_alert_idx",
-          "columns": [
-            {
-              "expression": "alert_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "incident_alerts_incident_id_incidents_id_fk": {
           "name": "incident_alerts_incident_id_incidents_id_fk",
@@ -454,7 +378,15 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "incident_alerts_incident_id_alert_id_pk": {
+          "name": "incident_alerts_incident_id_alert_id_pk",
+          "columns": [
+            "incident_id",
+            "alert_id"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
@@ -487,7 +419,8 @@
           "name": "severity",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": 0
         },
         "correlation_key": {
           "name": "correlation_key",
@@ -495,27 +428,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "verdict_verdict": {
-          "name": "verdict_verdict",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verdict_confidence": {
-          "name": "verdict_confidence",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verdict_rationale": {
-          "name": "verdict_rationale",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "verdict_recommended_action": {
-          "name": "verdict_recommended_action",
-          "type": "text",
+        "verdict": {
+          "name": "verdict",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },
@@ -535,23 +450,8 @@
         }
       },
       "indexes": {
-        "incidents_status_idx": {
-          "name": "incidents_status_idx",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "incidents_correlation_key_idx": {
-          "name": "incidents_correlation_key_idx",
+        "incidents_correlation_idx": {
+          "name": "incidents_correlation_idx",
           "columns": [
             {
               "expression": "correlation_key",
@@ -565,11 +465,11 @@
           "method": "btree",
           "with": {}
         },
-        "incidents_severity_idx": {
-          "name": "incidents_severity_idx",
+        "incidents_status_idx": {
+          "name": "incidents_status_idx",
           "columns": [
             {
-              "expression": "severity",
+              "expression": "status",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -614,7 +514,8 @@
           "name": "ts",
           "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "actor": {
           "name": "actor",
@@ -635,44 +536,7 @@
           "notNull": true
         }
       },
-      "indexes": {
-        "ledger_incident_id_idx": {
-          "name": "ledger_incident_id_idx",
-          "columns": [
-            {
-              "expression": "incident_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "ledger_seq_idx": {
-          "name": "ledger_seq_idx",
-          "columns": [
-            {
-              "expression": "incident_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "seq",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "ledger_incident_id_incidents_id_fk": {
           "name": "ledger_incident_id_incidents_id_fk",
@@ -689,7 +553,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "ledger_incident_seq_uniq": {
+          "name": "ledger_incident_seq_uniq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "incident_id",
+            "seq"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -710,36 +583,24 @@
           "primaryKey": false,
           "notNull": true
         },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "category": {
-          "name": "category",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "severity": {
           "name": "severity",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "yaml": {
-          "name": "yaml",
-          "type": "text",
+        "definition": {
+          "name": "definition",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
+        "enabled": {
+          "name": "enabled",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": 1
         }
       },
       "indexes": {},
