@@ -1,0 +1,9 @@
+id: AV-004
+title: Unauthorized API Call
+description: An AWS API call was denied with AccessDenied
+category: cloud
+severity: 70
+condition:
+  field: outcome
+  operator: equals
+  value: failure

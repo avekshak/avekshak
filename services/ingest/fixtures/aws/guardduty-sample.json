@@ -1,0 +1,42 @@
+{
+  "Findings": [
+    {
+      "CreatedAt": "2026-11-10T02:00:00Z",
+      "Type": "Exfiltration:S3/ObjectRead.Unusual",
+      "Severity": 8.0,
+      "Title": "Unusual S3 object read by IAM user",
+      "Description": "An IAM user is reading S3 objects at an unusual rate.",
+      "Resource": {
+        "ResourceType": "S3Bucket",
+        "AccessKeyDetails": { "UserName": "svc-account" }
+      },
+      "Service": {
+        "Action": {
+          "ActionType": "AWS_API_CALL",
+          "AwsApiCallAction": {
+            "CallerType": "Remote",
+            "RemoteIpDetails": { "IpAddressV4": "5.6.7.8" }
+          }
+        }
+      }
+    },
+    {
+      "CreatedAt": "2026-11-10T02:10:00Z",
+      "Type": "UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B",
+      "Severity": 5.0,
+      "Title": "Successful console login from unusual location",
+      "Resource": {
+        "ResourceType": "AccessKey",
+        "AccessKeyDetails": { "UserName": "admin" }
+      },
+      "Service": {
+        "Action": {
+          "ActionType": "NETWORK_CONNECTION",
+          "NetworkConnectionAction": {
+            "RemoteIpDetails": { "IpAddressV4": "91.108.4.1" }
+          }
+        }
+      }
+    }
+  ]
+}

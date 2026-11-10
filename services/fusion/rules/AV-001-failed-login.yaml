@@ -1,0 +1,9 @@
+id: AV-001
+title: Failed Login Attempt
+description: A single failed authentication event
+category: authentication
+severity: 40
+condition:
+  field: action
+  operator: equals
+  value: login_failed

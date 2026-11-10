@@ -1,0 +1,13 @@
+id: AV-002
+title: Brute Force Login
+description: 5 or more failed logins from the same IP within 5 minutes
+category: authentication
+severity: 75
+condition:
+  field: action
+  operator: equals
+  value: login_failed
+threshold:
+  count: 5
+  windowSeconds: 300
+  groupBy: actor.ip
