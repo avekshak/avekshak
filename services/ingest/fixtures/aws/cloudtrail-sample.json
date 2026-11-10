@@ -1,0 +1,28 @@
+{
+  "Records": [
+    {
+      "eventTime": "2026-11-10T01:00:00Z",
+      "eventSource": "s3.amazonaws.com",
+      "eventName": "GetObject",
+      "sourceIPAddress": "203.0.113.1",
+      "userIdentity": { "type": "IAMUser", "userName": "kunal" },
+      "requestParameters": { "bucketName": "prod-data", "key": "customers.csv" }
+    },
+    {
+      "eventTime": "2026-11-10T01:05:00Z",
+      "eventSource": "iam.amazonaws.com",
+      "eventName": "AssumeRole",
+      "errorCode": "AccessDenied",
+      "errorMessage": "User is not authorized to perform sts:AssumeRole",
+      "sourceIPAddress": "198.51.100.9",
+      "userIdentity": { "type": "IAMUser", "userName": "attacker" }
+    },
+    {
+      "eventTime": "2026-11-10T01:10:00Z",
+      "eventSource": "ec2.amazonaws.com",
+      "eventName": "TerminateInstances",
+      "sourceIPAddress": "10.0.0.5",
+      "userIdentity": { "type": "IAMUser", "userName": "svc-deploy" }
+    }
+  ]
+}
