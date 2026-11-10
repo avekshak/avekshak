@@ -16,14 +16,14 @@ function connection(): Redis {
 }
 
 export interface TypedQueue<T> {
-  enqueue(name: string, data: T): Promise<Job<T>>;
+  enqueue(name: string, data: T): Promise<Job>;
   close(): Promise<void>;
 }
 
 export function createQueue<T>(queueName: string): TypedQueue<T> {
   const queue = new Queue<T>(queueName, { connection: connection() });
   return {
-    enqueue: (name, data) => queue.add(name, data),
+    enqueue: (name, data) => (queue as Queue).add(name, data) as Promise<Job>,
     close: () => queue.close(),
   };
 }
