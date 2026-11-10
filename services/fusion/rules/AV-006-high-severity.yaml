@@ -1,0 +1,9 @@
+id: AV-006
+title: High Severity Event
+description: Any event with severity score 80 or above
+category: system
+severity: 80
+condition:
+  field: severity
+  operator: gte
+  value: 80

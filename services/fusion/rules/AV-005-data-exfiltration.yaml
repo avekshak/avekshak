@@ -1,0 +1,9 @@
+id: AV-005
+title: Data Exfiltration Detected
+description: GuardDuty or other source flagged unusual data access
+category: data_access
+severity: 90
+condition:
+  field: category
+  operator: equals
+  value: data_access

@@ -1,0 +1,9 @@
+id: AV-003
+title: Privileged Action by IAM User
+description: An IAM user assumed a role or attached a policy
+category: authentication
+severity: 50
+condition:
+  field: action
+  operator: equals
+  value: assume_role
