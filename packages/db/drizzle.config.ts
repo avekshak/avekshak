@@ -8,5 +8,6 @@ export default defineConfig({
     url:
       process.env.POSTGRES_URL ??
       "postgres://avekshak:avekshak@localhost:5432/avekshak",
+
   },
 });
