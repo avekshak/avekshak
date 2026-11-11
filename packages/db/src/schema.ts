@@ -1,4 +1,14 @@
-import { pgTable, uuid, text, integer, timestamp, jsonb, index, primaryKey } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  integer,
+  timestamp,
+  jsonb,
+  primaryKey,
+  index,
+  unique,
+} from "drizzle-orm/pg-core";
 
 export const events = pgTable(
   "events",
@@ -18,44 +28,48 @@ export const events = pgTable(
     locationCountry: text("location_country"),
     locationCity: text("location_city"),
     raw: jsonb("raw").notNull(),
-    ingestedAt: timestamp("ingested_at", { withTimezone: true }).defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (t) => [
-    index("events_ts_idx").on(t.ts),
-    index("events_actor_ip_idx").on(t.actorIp),
-    index("events_source_idx").on(t.source),
-  ],
+  (t) => ({
+    bySource: index("events_source_idx").on(t.source),
+    byActorIp: index("events_actor_ip_idx").on(t.actorIp),
+  }),
 );
 
 export const rules = pgTable("rules", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
-  description: text("description"),
-  category: text("category").notNull(),
   severity: integer("severity").notNull(),
-  yaml: text("yaml").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  definition: jsonb("definition").notNull(),
+  enabled: integer("enabled").notNull().default(1),
 });
 
 export const alerts = pgTable(
   "alerts",
   {
     id: uuid("id").primaryKey(),
-    eventId: uuid("event_id").notNull().references(() => events.id),
-    ruleId: text("rule_id").notNull().references(() => rules.id),
+    eventId: uuid("event_id")
+      .notNull()
+      .references(() => events.id),
+    ruleId: text("rule_id")
+      .notNull()
+      .references(() => rules.id),
     title: text("title").notNull(),
     severity: integer("severity").notNull(),
     ts: timestamp("ts", { withTimezone: true }).notNull(),
     actorIp: text("actor_ip"),
     actorUser: text("actor_user"),
     targetHost: text("target_host"),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    dedupeKey: text("dedupe_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (t) => [
-    index("alerts_event_id_idx").on(t.eventId),
-    index("alerts_ts_idx").on(t.ts),
-    index("alerts_actor_ip_idx").on(t.actorIp),
-  ],
+  (t) => ({
+    byDedupe: unique("alerts_dedupe_uniq").on(t.dedupeKey),
+  }),
 );
 
 export const incidents = pgTable(
@@ -64,58 +78,65 @@ export const incidents = pgTable(
     id: uuid("id").primaryKey(),
     title: text("title").notNull(),
     status: text("status").notNull().default("open"),
-    severity: integer("severity").notNull(),
+    severity: integer("severity").notNull().default(0),
     correlationKey: text("correlation_key").notNull(),
-    verdictVerdict: text("verdict_verdict"),
-    verdictConfidence: integer("verdict_confidence"),
-    verdictRationale: text("verdict_rationale"),
-    verdictRecommendedAction: text("verdict_recommended_action"),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    verdict: jsonb("verdict"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
-  (t) => [
-    index("incidents_status_idx").on(t.status),
-    index("incidents_correlation_key_idx").on(t.correlationKey),
-    index("incidents_severity_idx").on(t.severity),
-  ],
+  (t) => ({
+    byCorrelation: index("incidents_correlation_idx").on(t.correlationKey),
+    byStatus: index("incidents_status_idx").on(t.status),
+  }),
 );
 
 export const incidentAlerts = pgTable(
   "incident_alerts",
   {
-    incidentId: uuid("incident_id").notNull().references(() => incidents.id),
-    alertId: uuid("alert_id").notNull().references(() => alerts.id),
-    linkedAt: timestamp("linked_at", { withTimezone: true }).defaultNow().notNull(),
+    incidentId: uuid("incident_id")
+      .notNull()
+      .references(() => incidents.id),
+    alertId: uuid("alert_id")
+      .notNull()
+      .references(() => alerts.id),
   },
-  (t) => [
-    primaryKey({ columns: [t.incidentId, t.alertId] }),
-    index("incident_alerts_incident_idx").on(t.incidentId),
-    index("incident_alerts_alert_idx").on(t.alertId),
-  ],
+  (t) => ({
+    pk: primaryKey({ columns: [t.incidentId, t.alertId] }),
+  }),
 );
 
 export const ledger = pgTable(
   "ledger",
   {
     id: uuid("id").primaryKey(),
-    incidentId: uuid("incident_id").notNull().references(() => incidents.id),
+    incidentId: uuid("incident_id")
+      .notNull()
+      .references(() => incidents.id),
     seq: integer("seq").notNull(),
-    ts: timestamp("ts", { withTimezone: true }).notNull(),
+    ts: timestamp("ts", { withTimezone: true }).notNull().defaultNow(),
     actor: text("actor").notNull(),
     action: text("action").notNull(),
     detail: jsonb("detail").notNull(),
   },
-  (t) => [
-    index("ledger_incident_id_idx").on(t.incidentId),
-    index("ledger_seq_idx").on(t.incidentId, t.seq),
-  ],
+  (t) => ({
+    // One row per (incident, seq) — guarantees ordered, gap-checkable, append-only entries.
+    uniqSeq: unique("ledger_incident_seq_uniq").on(t.incidentId, t.seq),
+  }),
 );
 
 export const approvals = pgTable("approvals", {
   id: uuid("id").primaryKey(),
-  incidentId: uuid("incident_id").notNull().references(() => incidents.id),
+  incidentId: uuid("incident_id")
+    .notNull()
+    .references(() => incidents.id),
   decision: text("decision").notNull(),
   decidedBy: text("decided_by").notNull(),
-  decidedAt: timestamp("decided_at", { withTimezone: true }).notNull(),
+  decidedAt: timestamp("decided_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   note: text("note"),
 });
