@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import { createDb } from "@avekshak/db";
+import { getDb } from "@avekshak/db";
 import { Redis } from "ioredis";
 
 const PORT = Number(process.env.API_PORT ?? 8000);
@@ -7,7 +7,7 @@ const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
 
 const app = Fastify({ logger: true });
 
-const db = createDb();
+const db = getDb();
 const redis = new Redis(REDIS_URL, { maxRetriesPerRequest: 1, lazyConnect: true });
 
 app.get("/health", async (_req, reply) => {
