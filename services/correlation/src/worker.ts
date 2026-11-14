@@ -1,14 +1,14 @@
 import { randomUUID } from "crypto";
 import { Redis } from "ioredis";
 import { createWorker } from "@avekshak/queue";
-import { createDb, incidents, incidentAlerts, alerts } from "@avekshak/db";
+import { getDb, incidents, incidentAlerts, alerts } from "@avekshak/db";
 import { eq, and, gt } from "drizzle-orm";
 import { correlationKey, CORRELATION_WINDOW_MS } from "./correlate.js";
 import type { AlertSummary } from "./correlate.js";
 
 const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
 const redis = new Redis(REDIS_URL, { maxRetriesPerRequest: 1, lazyConnect: true });
-const db = createDb();
+const db = getDb();
 
 // Redis key for the active incident id for a given correlation key
 function incidentKey(corrKey: string): string {

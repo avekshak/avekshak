@@ -1,11 +1,11 @@
 import { randomUUID } from "crypto";
-import { createDb, alerts, rules as rulesTable } from "@avekshak/db";
+import { getDb, alerts, rules as rulesTable } from "@avekshak/db";
 import { createQueue } from "@avekshak/queue";
 import { eq, and, gte } from "drizzle-orm";
 import type { NormalizedEvent } from "@avekshak/schema";
 import type { Rule } from "./rule-schema.js";
 
-const db = createDb();
+const db = getDb();
 const alertsQueue = createQueue("alerts");
 
 // Dedupe window: suppress identical (eventId, ruleId) within 5 minutes

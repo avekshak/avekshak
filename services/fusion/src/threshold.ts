@@ -1,13 +1,13 @@
 import { Redis } from "ioredis";
 import { randomUUID } from "crypto";
-import { createDb, alerts, rules as rulesTable } from "@avekshak/db";
+import { getDb, alerts, rules as rulesTable } from "@avekshak/db";
 import { createQueue } from "@avekshak/queue";
 import type { NormalizedEvent } from "@avekshak/schema";
 import type { Rule } from "./rule-schema.js";
 
 const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
 const redis = new Redis(REDIS_URL, { maxRetriesPerRequest: 1, lazyConnect: true });
-const db = createDb();
+const db = getDb();
 const alertsQueue = createQueue("alerts");
 
 function groupByValue(event: NormalizedEvent, groupBy: string): string | undefined {
