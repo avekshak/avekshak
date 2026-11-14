@@ -13,7 +13,7 @@
     "@avekshak/db": "workspace:*",
     "@avekshak/queue": "workspace:*",
     "@avekshak/schema": "workspace:*",
-    "drizzle-orm": "^0.38.3",
+    "drizzle-orm": "^0.36.4",
     "ioredis": "^5.4.1",
     "js-yaml": "^4.1.0",
     "zod": "^3.23.8"
