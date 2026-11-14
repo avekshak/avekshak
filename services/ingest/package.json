@@ -3,20 +3,26 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "main": "./dist/index.js",
   "scripts": {
-    "dev": "node --watch dist/index.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "syslog": "tsx src/connectors/syslog/index.ts",
+    "wazuh": "tsx src/connectors/wazuh/index.ts",
+    "aws": "tsx src/connectors/aws/index.ts"
   },
   "dependencies": {
-    "@avekshak/db": "workspace:*",
+    "@avekshak/schema": "workspace:*",
     "@avekshak/queue": "workspace:*",
-    "@avekshak/schema": "workspace:*"
+    "@avekshak/db": "workspace:*",
+    "drizzle-orm": "^0.36.4",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3",
-    "@types/node": "^22.9.0",
     "vitest": "^2.1.4"
   }
 }
