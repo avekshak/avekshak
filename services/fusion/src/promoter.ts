@@ -37,14 +37,13 @@ export async function promoteAlert(event: NormalizedEvent, rule: Rule): Promise<
     .values({
       id: rule.id,
       title: rule.title,
-      description: rule.description ?? null,
-      category: rule.category,
       severity: rule.severity,
-      yaml: rule.id,
+      definition: rule,
     })
     .onConflictDoNothing();
 
   const alertId = randomUUID();
+  const dedupeKey = `${event.id}:${rule.id}`;
   await db.insert(alerts).values({
     id: alertId,
     eventId: event.id,
@@ -55,6 +54,7 @@ export async function promoteAlert(event: NormalizedEvent, rule: Rule): Promise<
     actorIp: event.actor.ip ?? null,
     actorUser: event.actor.user ?? null,
     targetHost: event.target.host ?? null,
+    dedupeKey,
   });
 
   await alertsQueue.enqueue("alert", {
