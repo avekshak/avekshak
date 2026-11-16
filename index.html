@@ -911,55 +911,47 @@ p.body {
   .p-stages {
     display: flex !important;
     flex-direction: column;
-    gap: 0;
+    gap: 10px;
     margin-top: 28px;
-    position: relative;
+    position: static !important;
   }
-  /* vertical connector line */
-  .p-stages::after {
-    top: 0; bottom: 0; left: 27px;
-    width: 1px; height: auto;
-    transform: none;
-    background: linear-gradient(180deg, transparent 0%, var(--line2) 8%, var(--line2) 92%, transparent 100%);
-  }
+  .p-stages::after { display: none; }
 
   .p-stage {
     flex-direction: row !important;
     text-align: left !important;
     align-items: center !important;
-    gap: 16px;
-    padding: 16px 16px 16px 0 !important;
-    position: relative;
+    gap: 14px;
+    padding: 16px 18px !important;
+    border-radius: 14px !important;
   }
-  /* connector dot on the line */
-  .p-stage::before {
-    content: attr(data-idx);
+  /* step number injected by JS */
+  .p-step-num {
     display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; flex-shrink: 0;
+    width: 30px; height: 30px; flex-shrink: 0;
     border-radius: 50%;
-    background: var(--surface);
+    background: var(--surface2);
     border: 1px solid var(--line2);
-    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
     color: var(--sub);
-    z-index: 2; position: relative;
-    margin-left: 14px;
     transition: background .3s, border-color .3s, color .3s;
   }
-  .p-stage.lit::before   { background: rgba(0,212,255,.15); border-color: var(--a); color: var(--a); }
-  .p-stage.lit-v::before { background: rgba(124,58,255,.15); border-color: var(--a2); color: var(--a2); }
-  .p-stage.lit-w::before { background: rgba(255,180,0,.15); border-color: var(--w); color: var(--w); }
-  .p-stage.lit-g::before { background: rgba(0,229,160,.15); border-color: var(--g); color: var(--g); }
+  .p-stage.lit     .p-step-num { background: rgba(0,212,255,.12); border-color: var(--a); color: var(--a); }
+  .p-stage.lit-v   .p-step-num { background: rgba(124,58,255,.12); border-color: var(--a2); color: var(--a2); }
+  .p-stage.lit-w   .p-step-num { background: rgba(255,180,0,.12); border-color: var(--w); color: var(--w); }
+  .p-stage.lit-g   .p-step-num { background: rgba(0,229,160,.12); border-color: var(--g); color: var(--g); }
 
   .p-stage .ps-icon {
-    width: 40px !important; height: 40px !important;
-    margin: 0 !important;
-    flex-shrink: 0;
+    width: 42px !important; height: 42px !important;
+    margin: 0 !important; flex-shrink: 0;
+    border-radius: 12px !important;
   }
-  .p-stage .ps-name { font-size: 14px !important; margin-bottom: 3px; }
-  .p-stage .ps-role { font-size: 12px !important; }
+  .p-stage-text { display: flex; flex-direction: column; gap: 3px; }
+  .p-stage .ps-name { font-size: 15px !important; margin-bottom: 0 !important; font-weight: 700; }
+  .p-stage .ps-role { font-size: 12px !important; display: block !important; }
 
-  /* traveling dot hidden on mobile stepper */
-  .p-stages > div[style*="position:absolute"] { display: none !important; }
+  /* hide traveling dot on mobile */
+  .p-travel-dot { display: none !important; }
 }
 
 .p-stage {
@@ -1007,6 +999,9 @@ p.body {
 .p-stage .ps-name { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
 .p-stage .ps-role { font-size: 12px; color: var(--sub); font-family:var(--mono); }
 
+/* step number badge — desktop hidden, mobile shown */
+.p-step-num { display: none; }
+
 /* Moving packet SVG elements drawn by JS */
 .pipe-packet { filter: blur(0); }
 
@@ -1030,7 +1025,7 @@ p.body {
   display: grid; grid-template-columns: 64px 1fr;
   gap: 28px; padding: 24px 0; position: relative;
 }
-@media(max-width:700px){ .svc-row{grid-template-columns:1fr} }
+@media(max-width:700px){ .svc-row{grid-template-columns:1fr} .svc-dot-col{display:none} }
 .svc-dot-col { display: flex; flex-direction: column; align-items: center; padding-top: 18px; }
 .svc-dot {
   width: 14px; height: 14px; border-radius: 50%;
@@ -1655,36 +1650,31 @@ footer::before {
       <div class="card lg lg-a p-stage" data-idx="0" data-col="a">
         <div class="lg-lens"></div>
         <div class="ps-icon"><svg viewBox="0 0 18 18" fill="none" width="18" height="18"><path d="M2 9h14M9 2v14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="9" r="4" stroke="currentColor" stroke-width="1"/></svg></div>
-        <div class="ps-name">Ingest</div>
-        <div class="ps-role">Normalize events</div>
+        <div class="p-stage-text"><div class="ps-name">Ingest</div><div class="ps-role">Normalize events</div></div>
       </div>
       <!-- Fusion -->
       <div class="card lg lg-a p-stage" data-idx="1" data-col="a">
         <div class="lg-lens"></div>
         <div class="ps-icon"><svg viewBox="0 0 18 18" fill="none" width="18" height="18"><circle cx="5" cy="5" r="2.5" stroke="currentColor" stroke-width="1"/><circle cx="13" cy="5" r="2.5" stroke="currentColor" stroke-width="1"/><circle cx="9" cy="14" r="2.5" stroke="currentColor" stroke-width="1"/><path d="M7 6l2 5.5M11 6l-2 5.5M7 5h4" stroke="currentColor" stroke-width="1" opacity=".5"/></svg></div>
-        <div class="ps-name">Fusion</div>
-        <div class="ps-role">Detect threats</div>
+        <div class="p-stage-text"><div class="ps-name">Fusion</div><div class="ps-role">Detect threats</div></div>
       </div>
       <!-- Correlation -->
       <div class="card lg p-stage" data-idx="2" data-col="b">
         <div class="lg-lens"></div>
         <div class="ps-icon"><svg viewBox="0 0 18 18" fill="none" width="18" height="18"><rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1"/><rect x="10" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1"/><rect x="6" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1"/><path d="M5 8v2H9M13 8v2H9" stroke="currentColor" stroke-width="1" opacity=".6"/></svg></div>
-        <div class="ps-name">Correlation</div>
-        <div class="ps-role">Group incidents</div>
+        <div class="p-stage-text"><div class="ps-name">Correlation</div><div class="ps-role">Group incidents</div></div>
       </div>
       <!-- Agent -->
       <div class="card lg lg-v p-stage" data-idx="3" data-col="v">
         <div class="lg-lens"></div>
         <div class="ps-icon"><svg viewBox="0 0 18 18" fill="none" width="18" height="18"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1"/><path d="M3 16c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M7 7l1.5 1.5L11 6" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div>
-        <div class="ps-name">AI Agent</div>
-        <div class="ps-role">Triage + verdict</div>
+        <div class="p-stage-text"><div class="ps-name">AI Agent</div><div class="ps-role">Triage + verdict</div></div>
       </div>
       <!-- Human -->
       <div class="card lg lg-w p-stage" data-idx="4" data-col="w">
         <div class="lg-lens"></div>
         <div class="ps-icon"><svg viewBox="0 0 18 18" fill="none" width="18" height="18"><rect x="2" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1"/><path d="M6 9h6M6 12h3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M9 4v-2M6 4v-2M12 4v-2" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".5"/></svg></div>
-        <div class="ps-name">Analyst</div>
-        <div class="ps-role">Approve action</div>
+        <div class="p-stage-text"><div class="ps-name">Analyst</div><div class="ps-role">Approve action</div></div>
       </div>
     </div>
   </div>
@@ -2166,8 +2156,17 @@ footer::before {
 
   /* Create traveling dot */
   const dot = document.createElement('div');
+  dot.className = 'p-travel-dot';
   dot.style.cssText = 'position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:var(--a);box-shadow:0 0 16px var(--a),0 0 6px var(--a);transform:translateY(-50%);pointer-events:none;z-index:10;transition:left 0.55s cubic-bezier(.4,0,.2,1),background .3s,box-shadow .3s;';
   if (stagesEl) stagesEl.appendChild(dot);
+
+  /* Inject step number badges for mobile stepper */
+  stages.forEach((s, i) => {
+    const badge = document.createElement('span');
+    badge.className = 'p-step-num';
+    badge.textContent = String(i + 1).padStart(2, '0');
+    s.insertBefore(badge, s.firstChild);
+  });
 
   const colColors = { a: 'var(--a)', b: 'var(--g)', v: 'var(--a2)', w: 'var(--w)', r: 'var(--r)' };
 
