@@ -1,0 +1,25 @@
+name: Promote test → main
+
+on:
+  push:
+    branches: [test]
+
+jobs:
+  promote:
+    name: Merge test into main
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge test into main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin test
+          git merge --no-ff origin/test -m "chore: promote test → main [skip ci]"
+          git push origin main

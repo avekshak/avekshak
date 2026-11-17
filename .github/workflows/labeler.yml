@@ -1,0 +1,35 @@
+ingest:                                                                                                                                                                                                        
+    - services/ingest/**                                                                                                                                                                                         
+       
+  correlation:                                                                                                                                                                                                   
+    - services/correlation/**
+                                                                                                                                                                                                                 
+  agent:                     
+    - services/agent/**                                                                                                                                                                                          
+                  
+  api:                                                                                                                                                                                                           
+    - services/api/**
+      
+  frontend:          
+    - apps/**
+           
+  database:  
+    - packages/db/**
+                                                                                                                                                                                                                 
+  detection-rules:  
+    - packages/detections/**                                                                                                                                                                                     
+                  
+  shared:                   
+    - packages/**                                                                                                                                                                                                
+         
+  ci:                                                                                                                                                                                                            
+    - .github/**  
+                                                                                                                                                                                                                 
+  docs:         
+    - "**/*.md"                                                                                                                                                                                                  
+                  
+  config:      
+    - "*.json"                                                                                                                                                                                                   
+    - "*.yml"
+    - "*.yaml"                                                                                                                                                                                                   
+    - tsconfig*.json

@@ -1,9 +1,9 @@
 import { createWorker, createQueue } from "@avekshak/queue";
-import { createDb, events } from "@avekshak/db";
+import { getDb, events } from "@avekshak/db";
 import { NormalizedEventSchema } from "@avekshak/schema";
 import type { NormalizedEvent } from "@avekshak/schema";
 
-const db = createDb();
+const db = getDb();
 const detectQueue = createQueue<NormalizedEvent>("detect");
 
 export function startIngestWorker(): void {
