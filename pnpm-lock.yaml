@@ -235,19 +235,28 @@ importers:
       '@avekshak/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@avekshak/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
+      drizzle-orm:
+        specifier: ^0.38.3
+        version: 0.38.4(postgres@3.4.9)
       fastify:
-        specifier: ^5.2.1
+        specifier: ^5.1.0
         version: 5.12.8
       ioredis:
         specifier: ^5.4.1
         version: 5.11.1
     devDependencies:
-      '@types/node':
-        specifier: ^22.9.0
-        version: 22.20.5
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.15
       typescript:
         specifier: ^5.6.3
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@22.20.5)
 
   services/correlation:
     dependencies:
