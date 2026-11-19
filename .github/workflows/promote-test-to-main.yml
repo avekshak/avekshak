@@ -1,25 +1,35 @@
 name: Promote test → main
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
     branches: [test]
+    types: [completed]
 
 jobs:
   promote:
     name: Merge test into main
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Merge test into main
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "avekshak-bot[bot]"
+          git config user.email "avekshak-bot[bot]@users.noreply.github.com"
           git fetch origin test
           git merge --no-ff origin/test -m "chore: promote test → main [skip ci]"
           git push origin main
