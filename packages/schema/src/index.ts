@@ -45,6 +45,59 @@ export const AlertSchema = z.object({
 });
 export type Alert = z.infer<typeof AlertSchema>;
 
+/**
+ * Detection rule DSL. A rule matches a single NormalizedEvent when ALL of its
+ * `when` conditions hold (logical AND). Each condition names a dotted field
+ * path into the event (e.g. "actor.ip", "outcome"), an operator, and a value.
+ * Kept deliberately small — enough to express the MVP's ~15 hand-written rules
+ * without a general expression language.
+ */
+export const RuleOperator = z.enum([
+  "eq", // field === value
+  "neq", // field !== value
+  "in", // value (array) includes field
+  "gte", // field >= value (numbers)
+  "lte", // field <= value (numbers)
+  "contains", // field (string) includes value (string)
+  "exists", // field is present / absent per boolean value
+]);
+export type RuleOperatorType = z.infer<typeof RuleOperator>;
+
+export const RuleConditionSchema = z.object({
+  field: z.string().min(1),
+  op: RuleOperator,
+  value: z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.array(z.union([z.string(), z.number()])),
+  ]),
+});
+export type RuleCondition = z.infer<typeof RuleConditionSchema>;
+
+/**
+ * A windowed rule counts matching events keyed by a field over a time window
+ * and fires when the count reaches `threshold`. When `window` is absent the
+ * rule is single-event. Example: 5 `authentication` failures from one
+ * `actor.ip` in 300s → brute-force.
+ */
+export const RuleWindowSchema = z.object({
+  groupBy: z.string().min(1), // dotted field whose value buckets the count
+  threshold: z.number().int().positive(),
+  seconds: z.number().int().positive(),
+});
+export type RuleWindow = z.infer<typeof RuleWindowSchema>;
+
+export const RuleSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  severity: z.number().int().min(0).max(100),
+  enabled: z.boolean().default(true),
+  when: z.array(RuleConditionSchema).min(1),
+  window: RuleWindowSchema.optional(),
+});
+export type Rule = z.infer<typeof RuleSchema>;
+
 export const IncidentStatus = z.enum([
   "open",
   "triaged",
