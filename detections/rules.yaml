@@ -1,0 +1,89 @@
+# Avekshak detection rules. Each rule matches a single NormalizedEvent when ALL
+# `when` conditions hold. Dotted field paths resolve into the event envelope
+# (category, action, outcome, severity, actor.{user,ip}, target.{host,resource,ip},
+# location.{country,city}). Windowed rules add a `window` block (see brute-force).
+
+- id: auth-failed-login
+  title: Failed authentication
+  severity: 40
+  when:
+    - { field: category, op: eq, value: authentication }
+    - { field: outcome, op: eq, value: failure }
+
+- id: auth-root-login-success
+  title: Successful root/admin login
+  severity: 60
+  when:
+    - { field: category, op: eq, value: authentication }
+    - { field: outcome, op: eq, value: success }
+    - { field: actor.user, op: in, value: ["root", "admin", "administrator"] }
+
+- id: aws-console-login-root
+  title: AWS console login by privileged user
+  severity: 55
+  when:
+    - { field: source, op: eq, value: aws }
+    - { field: action, op: eq, value: ConsoleLogin }
+    - { field: actor.user, op: in, value: ["root", "owner", "admin"] }
+
+- id: aws-access-denied
+  title: AWS API call denied (possible probing)
+  severity: 45
+  when:
+    - { field: source, op: eq, value: aws }
+    - { field: outcome, op: eq, value: failure }
+
+- id: cloud-exfiltration-finding
+  title: Cloud data exfiltration finding
+  severity: 85
+  when:
+    - { field: source, op: eq, value: aws }
+    - { field: action, op: contains, value: "Exfiltration" }
+
+- id: cloud-unauthorized-access
+  title: Cloud unauthorized access finding
+  severity: 80
+  when:
+    - { field: source, op: eq, value: aws }
+    - { field: action, op: contains, value: "UnauthorizedAccess" }
+
+- id: known-bad-ip
+  title: Activity from a known-bad IP
+  severity: 75
+  when:
+    - field: actor.ip
+      op: in
+      value: ["203.0.113.9", "203.0.113.50", "198.51.100.23"]
+
+- id: high-severity-source
+  title: High-severity event from source
+  severity: 65
+  when:
+    - { field: severity, op: gte, value: 80 }
+
+- id: file-integrity-change
+  title: File integrity / syscheck change
+  severity: 35
+  when:
+    - { field: category, op: eq, value: syscheck }
+
+- id: impossible-travel-foreign
+  title: Privileged login from a foreign location
+  severity: 70
+  when:
+    - { field: category, op: eq, value: authentication }
+    - { field: outcome, op: eq, value: success }
+    - { field: location.country, op: neq, value: "US" }
+    - { field: actor.user, op: exists, value: true }
+
+- id: brute-force-logins
+  title: Brute-force authentication (many failures from one IP)
+  severity: 70
+  when:
+    - { field: category, op: eq, value: authentication }
+    - { field: outcome, op: eq, value: failure }
+    - { field: actor.ip, op: exists, value: true }
+  window:
+    groupBy: actor.ip
+    threshold: 5
+    seconds: 300
