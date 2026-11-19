@@ -35,4 +35,4 @@ export function createWorker<T>(
   return new Worker<T>(queueName, processor, { connection: connection() });
 }
 
-export type { Job };
+export type { Job, Worker };
