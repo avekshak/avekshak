@@ -1,122 +1,111 @@
-import { randomUUID } from "crypto";
-import type { NormalizedEvent } from "@avekshak/schema";
+import { v4 as uuidv4 } from "uuid";
+import {
+  NormalizedEventSchema,
+  type NormalizedEvent,
+} from "@avekshak/schema";
 
 interface CloudTrailRecord {
   eventTime?: string;
-  eventSource?: string;
   eventName?: string;
-  errorCode?: string;
-  errorMessage?: string;
-  userIdentity?: { type?: string; userName?: string; arn?: string };
+  eventSource?: string;
   sourceIPAddress?: string;
-  requestParameters?: Record<string, unknown>;
-  responseElements?: Record<string, unknown>;
+  errorCode?: string;
   awsRegion?: string;
-  recipientAccountId?: string;
+  userIdentity?: { userName?: string; arn?: string; type?: string };
+  [k: string]: unknown;
 }
 
 interface GuardDutyFinding {
-  CreatedAt?: string;
-  UpdatedAt?: string;
-  Type?: string;
-  Severity?: number;
-  Title?: string;
-  Description?: string;
-  Service?: {
-    Action?: {
-      ActionType?: string;
-      NetworkConnectionAction?: { RemoteIpDetails?: { IpAddressV4?: string } };
-      AwsApiCallAction?: { CallerType?: string; RemoteIpDetails?: { IpAddressV4?: string } };
-    };
-  };
-  Resource?: {
-    ResourceType?: string;
-    InstanceDetails?: { InstanceId?: string };
-    AccessKeyDetails?: { UserName?: string };
-  };
+  updatedAt?: string;
+  createdAt?: string;
+  type?: string;
+  severity?: number;
+  region?: string;
+  title?: string;
+  resource?: { resourceType?: string };
+  [k: string]: unknown;
 }
 
-// CloudTrail severity: errors = higher, reads = low
-function cloudTrailSeverity(record: CloudTrailRecord): number {
-  if (record.errorCode) return 70;
-  const name = (record.eventName ?? "").toLowerCase();
-  if (name.startsWith("delete") || name.startsWith("terminate")) return 60;
-  if (name.startsWith("create") || name.startsWith("put") || name.startsWith("attach")) return 30;
-  return 10;
+function gdSeverity(sev: number | undefined): number {
+  if (typeof sev !== "number" || Number.isNaN(sev)) return 50;
+  return Math.round(Math.max(0, Math.min(10, sev)) * 10);
 }
 
-export function normalizeCloudTrail(raw: unknown): NormalizedEvent | null {
-  const r = raw as CloudTrailRecord;
-  if (!r?.eventName) return null;
+function isGuardDuty(o: Record<string, unknown>): boolean {
+  return "type" in o && ("service" in o || "resource" in o || "severity" in o) && !("eventName" in o);
+}
 
-  const user = r.userIdentity?.userName ?? r.userIdentity?.arn?.split("/").pop();
+function isCloudTrail(o: Record<string, unknown>): boolean {
+  return "eventName" in o || "eventSource" in o;
+}
 
+export function normalizeAws(record: unknown, id?: string): NormalizedEvent | null {
+  if (record === null || typeof record !== "object" || Array.isArray(record)) {
+    return null;
+  }
+  const o = record as Record<string, unknown>;
+
+  let candidate: NormalizedEvent | null = null;
+  if (isCloudTrail(o)) {
+    candidate = fromCloudTrail(o as CloudTrailRecord, id);
+  } else if (isGuardDuty(o)) {
+    candidate = fromGuardDuty(o as GuardDutyFinding, id);
+  } else {
+    return null;
+  }
+  if (candidate === null) return null;
+
+  const parsed = NormalizedEventSchema.safeParse(candidate);
+  return parsed.success ? parsed.data : null;
+}
+
+function fromCloudTrail(r: CloudTrailRecord, id?: string): NormalizedEvent | null {
+  const ts = r.eventTime ? toIso(r.eventTime) : new Date().toISOString();
+  if (ts === null) return null;
+  const failed = typeof r.errorCode === "string" && r.errorCode.length > 0;
   return {
-    id: randomUUID(),
-    ts: r.eventTime ?? new Date().toISOString(),
+    id: id ?? uuidv4(),
+    ts,
     source: "aws",
-    category: inferCTCategory(r.eventSource ?? "", r.eventName ?? ""),
-    action: toSnakeCase(r.eventName ?? "unknown"),
-    outcome: r.errorCode ? "failure" : "success",
-    severity: cloudTrailSeverity(r),
-    actor: { user, ip: r.sourceIPAddress },
+    category: "cloud",
+    action: r.eventName ?? "api_call",
+    outcome: failed ? "failure" : "success",
+    severity: failed ? 50 : 20,
+    actor: {
+      user: r.userIdentity?.userName ?? r.userIdentity?.arn,
+      ip: r.sourceIPAddress,
+    },
     target: {
-      host: undefined,
       resource: r.eventSource,
-      ip: undefined,
     },
-    raw: raw as Record<string, unknown>,
+    location: r.awsRegion ? { city: r.awsRegion } : undefined,
+    raw: r as Record<string, unknown>,
   };
 }
 
-export function normalizeGuardDuty(raw: unknown): NormalizedEvent | null {
-  const f = raw as GuardDutyFinding;
-  if (!f?.Type) return null;
-
-  const ip =
-    f.Service?.Action?.NetworkConnectionAction?.RemoteIpDetails?.IpAddressV4 ??
-    f.Service?.Action?.AwsApiCallAction?.RemoteIpDetails?.IpAddressV4;
-
-  const user =
-    f.Resource?.AccessKeyDetails?.UserName;
-
-  // GuardDuty severity 0-10 → 0-100
-  const severity = Math.min(100, Math.round((f.Severity ?? 0) * 10));
-
+function fromGuardDuty(f: GuardDutyFinding, id?: string): NormalizedEvent | null {
+  const ts =
+    toIso(f.updatedAt ?? f.createdAt ?? "") ?? new Date().toISOString();
   return {
-    id: randomUUID(),
-    ts: f.CreatedAt ?? new Date().toISOString(),
+    id: id ?? uuidv4(),
+    ts,
     source: "aws",
-    category: inferGDCategory(f.Type ?? ""),
-    action: toSnakeCase(f.Type ?? "unknown"),
+    category: "cloud",
+    action: f.type ?? "guardduty_finding",
     outcome: "unknown",
-    severity,
-    actor: { user, ip },
+    severity: gdSeverity(f.severity),
+    actor: {},
     target: {
-      host: f.Resource?.InstanceDetails?.InstanceId,
-      resource: f.Resource?.ResourceType,
+      resource: f.resource?.resourceType,
     },
-    raw: raw as Record<string, unknown>,
+    location: f.region ? { city: f.region } : undefined,
+    raw: f as Record<string, unknown>,
   };
 }
 
-function inferCTCategory(source: string, name: string): string {
-  if (source.includes("iam") || name.toLowerCase().includes("credential")) return "authentication";
-  if (source.includes("s3")) return "data_access";
-  if (source.includes("ec2") || source.includes("lambda")) return "cloud";
-  if (source.includes("cloudtrail") || source.includes("config")) return "audit";
-  return "cloud";
-}
-
-function inferGDCategory(type: string): string {
-  const lower = type.toLowerCase();
-  if (lower.includes("backdoor") || lower.includes("trojan") || lower.includes("malware")) return "malware";
-  if (lower.includes("recon") || lower.includes("portscan")) return "network";
-  if (lower.includes("credential") || lower.includes("iam")) return "authentication";
-  if (lower.includes("exfiltration") || lower.includes("s3")) return "data_access";
-  return "cloud";
-}
-
-function toSnakeCase(s: string): string {
-  return s.replace(/([A-Z])/g, "_$1").toLowerCase().replace(/^_/, "");
+function toIso(s: string): string | null {
+  if (s.length === 0) return null;
+  const t = Date.parse(s);
+  if (Number.isNaN(t)) return null;
+  return new Date(t).toISOString();
 }
