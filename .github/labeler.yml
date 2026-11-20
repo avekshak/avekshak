@@ -1,50 +1,36 @@
 ingest:
-  - changed-files:
-    - any-glob-to-any-file: "services/ingest/**"
+  - services/ingest/**
 
 correlation:
-  - changed-files:
-    - any-glob-to-any-file: "services/correlation/**"
+  - services/correlation/**
 
 agent:
-  - changed-files:
-    - any-glob-to-any-file: "services/agent/**"
+  - services/agent/**
 
 api:
-  - changed-files:
-    - any-glob-to-any-file: "services/api/**"
+  - services/api/**
 
 frontend:
-  - changed-files:
-    - any-glob-to-any-file: "apps/**"
+  - apps/**
+  - "**/*.html"
 
 database:
-  - changed-files:
-    - any-glob-to-any-file: "packages/db/**"
+  - packages/db/**
 
 detection-rules:
-  - changed-files:
-    - any-glob-to-any-file: "packages/detections/**"
+  - packages/detections/**
 
 shared:
-  - changed-files:
-    - any-glob-to-any-file:
-      - "packages/**"
-      - "!packages/db/**"
-      - "!packages/detections/**"
+  - packages/**
 
 ci:
-  - changed-files:
-    - any-glob-to-any-file: ".github/**"
+  - .github/**
 
 docs:
-  - changed-files:
-    - any-glob-to-any-file: "**/*.md"
+  - "**/*.md"
 
 config:
-  - changed-files:
-    - any-glob-to-any-file:
-      - "*.json"
-      - "*.yml"
-      - "*.yaml"
-      - "tsconfig*.json"
+  - "*.json"
+  - "*.yml"
+  - "*.yaml"
+  - tsconfig*.json
