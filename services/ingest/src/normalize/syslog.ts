@@ -1,69 +1,69 @@
-import { randomUUID } from "crypto";
-import type { NormalizedEvent } from "@avekshak/schema";
+import { v4 as uuidv4 } from "uuid";
+import {
+  NormalizedEventSchema,
+  type NormalizedEvent,
+} from "@avekshak/schema";
 
-// RFC 3164 syslog: <priority>timestamp hostname process[pid]: message
-const SYSLOG_RE =
-  /^<(\d+)>(\w{3}\s+\d+\s+\d{2}:\d{2}:\d{2})\s+(\S+)\s+(\S+?)(?:\[(\d+)\])?:\s+(.*)$/;
-
-function parsePriority(pri: number): { severity: number; facility: number } {
-  return { facility: pri >> 3, severity: pri & 0x7 };
+function priToSeverity(pri: number): number {
+  const sev = pri % 8;
+  return Math.round(((7 - sev) / 7) * 100);
 }
 
-// Map syslog severity (0=emerg … 7=debug) to 0-100 scale
-function syslogSeverityToScore(sev: number): number {
-  const map: Record<number, number> = { 0: 100, 1: 90, 2: 80, 3: 70, 4: 50, 5: 30, 6: 10, 7: 5 };
-  return map[sev] ?? 10;
-}
+const IPV4 = /\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/;
 
-export function normalizeSyslog(raw: unknown): NormalizedEvent | null {
-  if (typeof raw !== "string") return null;
-  const m = SYSLOG_RE.exec(raw.trim());
-  if (!m) return null;
+export function normalizeSyslog(line: string): NormalizedEvent | null {
+  if (typeof line !== "string") return null;
+  const trimmed = line.trim();
+  if (trimmed.length === 0) return null;
 
-  const [, priStr, , hostname, process_, , message] = m;
-  const { severity: sev } = parsePriority(Number(priStr));
+  let severity = 30;
+  let body = trimmed;
+  const priMatch = /^<(\d{1,3})>/.exec(trimmed);
+  if (priMatch) {
+    const pri = Number(priMatch[1]);
+    if (pri >= 0 && pri <= 191) severity = priToSeverity(pri);
+    body = trimmed.slice(priMatch[0].length);
+  }
 
-  const action = inferAction(message ?? "");
+  const lower = body.toLowerCase();
+  const ipMatch = IPV4.exec(body);
+  const ip = ipMatch ? ipMatch[1] : undefined;
 
-  return {
-    id: randomUUID(),
+  let action = "log";
+  let outcome: NormalizedEvent["outcome"] = "unknown";
+  let category = "system";
+  let user: string | undefined;
+
+  const sshUser = /for (?:invalid user )?(\S{1,64}) from/.exec(body);
+  if (sshUser) user = sshUser[1];
+
+  if (lower.includes("failed password") || lower.includes("authentication failure")) {
+    category = "authentication";
+    action = "login_failed";
+    outcome = "failure";
+    if (severity < 50) severity = 50;
+  } else if (lower.includes("accepted password") || lower.includes("session opened")) {
+    category = "authentication";
+    action = "login_success";
+    outcome = "success";
+  }
+
+  const hostMatch = /(\S{1,253})\s+sshd/.exec(body);
+  const host = hostMatch?.[1];
+
+  const candidate: NormalizedEvent = {
+    id: uuidv4(),
     ts: new Date().toISOString(),
     source: "syslog",
-    category: inferCategory(process_ ?? "", message ?? ""),
+    category,
     action,
-    outcome: inferOutcome(message ?? ""),
-    severity: syslogSeverityToScore(sev),
-    actor: { user: extractUser(message ?? ""), ip: undefined },
-    target: { host: hostname, resource: process_ ?? undefined },
-    raw: { line: raw },
+    outcome,
+    severity,
+    actor: { user, ip },
+    target: { host },
+    raw: { line: trimmed },
   };
-}
 
-function inferAction(msg: string): string {
-  const lower = msg.toLowerCase();
-  if (lower.includes("failed password") || lower.includes("authentication failure")) return "login_failed";
-  if (lower.includes("accepted password") || lower.includes("session opened")) return "login_success";
-  if (lower.includes("session closed")) return "logout";
-  if (lower.includes("sudo")) return "privilege_escalation";
-  return "log_entry";
-}
-
-function inferCategory(process_: string, msg: string): string {
-  const lower = (process_ + " " + msg).toLowerCase();
-  if (lower.includes("sshd") || lower.includes("login") || lower.includes("pam")) return "authentication";
-  if (lower.includes("sudo") || lower.includes("su ")) return "authorization";
-  if (lower.includes("kernel") || lower.includes("iptables")) return "network";
-  return "system";
-}
-
-function inferOutcome(msg: string): "success" | "failure" | "unknown" {
-  const lower = msg.toLowerCase();
-  if (lower.includes("fail") || lower.includes("error") || lower.includes("invalid") || lower.includes("denied")) return "failure";
-  if (lower.includes("accept") || lower.includes("success") || lower.includes("opened")) return "success";
-  return "unknown";
-}
-
-function extractUser(msg: string): string | undefined {
-  const m = /(?:user|for)\s+(\w+)/i.exec(msg);
-  return m?.[1];
+  const parsed = NormalizedEventSchema.safeParse(candidate);
+  return parsed.success ? parsed.data : null;
 }
