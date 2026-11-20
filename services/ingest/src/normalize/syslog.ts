@@ -48,7 +48,8 @@ export function normalizeSyslog(line: string): NormalizedEvent | null {
     outcome = "success";
   }
 
-  const host = /(\w[\w.-]*)\s+sshd/.exec(body)?.[1];
+  const hostMatch = /(\S+)\s+sshd/.exec(body);
+  const host = hostMatch?.[1]?.slice(0, 253);
 
   const candidate: NormalizedEvent = {
     id: uuidv4(),
