@@ -29,6 +29,9 @@ detection-rules:
 shared:
   - changed-files:
     - any-glob-to-any-file: "packages/**"
+    - all-globs-to-none-file:
+      - "packages/db/**"
+      - "packages/detections/**"
 
 ci:
   - changed-files:
