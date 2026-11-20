@@ -34,7 +34,7 @@ export function normalizeSyslog(line: string): NormalizedEvent | null {
   let category = "system";
   let user: string | undefined;
 
-  const sshUser = /for (?:invalid user )?(\S+) from/.exec(body);
+  const sshUser = /for (?:invalid user )?(\S{1,64}) from/.exec(body);
   if (sshUser) user = sshUser[1];
 
   if (lower.includes("failed password") || lower.includes("authentication failure")) {
@@ -48,8 +48,8 @@ export function normalizeSyslog(line: string): NormalizedEvent | null {
     outcome = "success";
   }
 
-  const hostMatch = /(\S+)\s+sshd/.exec(body);
-  const host = hostMatch?.[1]?.slice(0, 253);
+  const hostMatch = /(\S{1,253})\s+sshd/.exec(body);
+  const host = hostMatch?.[1];
 
   const candidate: NormalizedEvent = {
     id: uuidv4(),
