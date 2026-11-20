@@ -1,0 +1,292 @@
+:root {
+  --bg: #0f1419;
+  --panel: #1a222c;
+  --panel-2: #232d3a;
+  --border: #2d3844;
+  --text: #e4e9ef;
+  --muted: #8a97a6;
+  --accent: #4f9dde;
+  --red: #e5484d;
+  --amber: #e0a234;
+  --green: #46a758;
+  --grey: #6b7684;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 14px;
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+}
+
+.app-subtitle {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* --- Table (list view) --- */
+.incident-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.incident-table th,
+.incident-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.incident-table th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.incident-table tbody tr {
+  cursor: pointer;
+}
+
+.incident-table tbody tr:hover {
+  background: var(--panel);
+}
+
+/* --- Badges --- */
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f1419;
+  text-transform: capitalize;
+}
+
+.badge-red {
+  background: var(--red);
+}
+.badge-amber {
+  background: var(--amber);
+}
+.badge-green {
+  background: var(--green);
+}
+.badge-grey {
+  background: var(--grey);
+  color: var(--text);
+}
+
+/* --- Panels (detail view) --- */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+}
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 20px;
+}
+
+.detail-header h2 {
+  margin: 0;
+  font-size: 20px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 6px 16px;
+  font-size: 14px;
+}
+
+.kv dt {
+  color: var(--muted);
+}
+
+.kv dd {
+  margin: 0;
+}
+
+.sub-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.sub-table th,
+.sub-table td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.sub-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* --- Ledger timeline --- */
+.ledger {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ledger-entry {
+  display: grid;
+  grid-template-columns: 40px 160px 1fr;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.ledger-seq {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger-action {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.ledger-meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ledger-detail {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  background: var(--panel-2);
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+}
+
+/* --- Decision controls --- */
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-approve {
+  background: var(--green);
+  color: #0f1419;
+  border-color: var(--green);
+}
+
+.btn-reject {
+  background: transparent;
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.notice {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.notice-ok {
+  background: rgba(70, 167, 88, 0.15);
+  border: 1px solid var(--green);
+}
+
+.notice-warn {
+  background: rgba(224, 162, 52, 0.15);
+  border: 1px solid var(--amber);
+}
+
+.notice-error {
+  background: rgba(229, 72, 77, 0.15);
+  border: 1px solid var(--red);
+}
+
+.empty,
+.loading {
+  padding: 48px 0;
+  text-align: center;
+  color: var(--muted);
+}
