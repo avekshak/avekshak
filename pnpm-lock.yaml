@@ -245,8 +245,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/schema
       drizzle-orm:
-        specifier: ^0.36.4
-        version: 0.36.4(postgres@3.4.9)
+        specifier: ^0.38.3
+        version: 0.38.4(postgres@3.4.9)
       ioredis:
         specifier: ^5.4.1
         version: 5.11.1
