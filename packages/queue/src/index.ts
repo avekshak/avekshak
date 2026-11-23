@@ -16,14 +16,21 @@ function connection(): Redis {
 }
 
 export interface TypedQueue<T> {
-  enqueue(name: string, data: T): Promise<Job>;
+  enqueue(name: string, data: T): Promise<Job<T>>;
   close(): Promise<void>;
 }
 
 export function createQueue<T>(queueName: string): TypedQueue<T> {
-  const queue = new Queue<T>(queueName, { connection: connection() });
+  const queue = new Queue(queueName, { connection: connection() });
+  // BullMQ's add() signature routes through conditional ExtractDataType /
+  // ExtractNameType helpers that will not unify with an unconstrained caller
+  // generic. Narrow add() to a plain (name, data) shape for our use.
+  const add = queue.add.bind(queue) as (
+    name: string,
+    data: T,
+  ) => Promise<Job<T>>;
   return {
-    enqueue: (name, data) => (queue as Queue).add(name, data) as Promise<Job>,
+    enqueue: (name, data) => add(name, data),
     close: () => queue.close(),
   };
 }

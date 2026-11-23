@@ -19,13 +19,14 @@ interface GuardDutyFinding {
   updatedAt?: string;
   createdAt?: string;
   type?: string;
-  severity?: number;
+  severity?: number; // 0..10 (float)
   region?: string;
   title?: string;
   resource?: { resourceType?: string };
   [k: string]: unknown;
 }
 
+/** GuardDuty severity is 0..10 (float); scale to 0..100. */
 function gdSeverity(sev: number | undefined): number {
   if (typeof sev !== "number" || Number.isNaN(sev)) return 50;
   return Math.round(Math.max(0, Math.min(10, sev)) * 10);
@@ -39,6 +40,14 @@ function isCloudTrail(o: Record<string, unknown>): boolean {
   return "eventName" in o || "eventSource" in o;
 }
 
+/**
+ * Pure normalizer: a single AWS record (CloudTrail event OR GuardDuty finding)
+ * → NormalizedEvent, or null if unrecognized/malformed. Never throws.
+ *
+ * `id` lets the caller pass a deterministic UUID (derived from the record's
+ * stable id — CloudTrail eventID or GuardDuty finding id) so re-ingesting the
+ * same export produces the same event id and dedupes on insert.
+ */
 export function normalizeAws(record: unknown, id?: string): NormalizedEvent | null {
   if (record === null || typeof record !== "object" || Array.isArray(record)) {
     return null;

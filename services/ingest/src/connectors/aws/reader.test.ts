@@ -3,6 +3,7 @@ import type { TypedQueue } from "@avekshak/queue";
 import type { NormalizedEvent } from "@avekshak/schema";
 import { extractAwsRecords, processAwsRecords } from "./reader.js";
 
+/** A queue stub that records what was enqueued. */
 function fakeQueue(): {
   queue: TypedQueue<NormalizedEvent>;
   enqueued: Array<{ name: string; ev: NormalizedEvent }>;
@@ -113,6 +114,7 @@ describe("processAwsRecords", () => {
     const b = fakeQueue();
     await processAwsRecords([rec], a.queue);
     await processAwsRecords([rec], b.queue);
+    // Same stable key → same event id across independent runs (dedupe no-op).
     expect(a.enqueued[0].ev.id).toBe(b.enqueued[0].ev.id);
   });
 });

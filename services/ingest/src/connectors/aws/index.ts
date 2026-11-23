@@ -6,12 +6,18 @@ import {
 } from "./reader.js";
 import { ingestQueue, startIngestWorker } from "../../pipeline/ingestQueue.js";
 
+/**
+ * Parses a file's contents into a list of records. Tries whole-file JSON first
+ * (array, CloudTrail {Records:[]}, or single object); falls back to NDJSON
+ * (one JSON object per line) when the whole-file parse fails.
+ */
 function parseFile(contents: string): unknown[] {
   const trimmed = contents.trim();
   if (trimmed.length === 0) return [];
   try {
     return extractAwsRecords(JSON.parse(trimmed));
   } catch {
+    // NDJSON fallback.
     const out: unknown[] = [];
     for (const line of trimmed.split("\n")) {
       const l = line.trim();
@@ -51,6 +57,7 @@ async function main() {
     );
   }
 
+  // Let the worker drain, then shut down. (File ingest is one-shot.)
   await sleep(1500);
   await queue.close();
   await worker.close();

@@ -6,6 +6,10 @@ const ES_INDEX = process.env.WAZUH_ES_INDEX ?? "wazuh-alerts-*";
 const POLL_MS = Number(process.env.WAZUH_POLL_MS ?? 10000);
 const PAGE_SIZE = Number(process.env.WAZUH_PAGE_SIZE ?? 500);
 
+/**
+ * Fetches alert docs newer than `since` from an Elasticsearch-compatible
+ * index, sorted ascending by timestamp.
+ */
 async function fetchSince(since: string | null): Promise<EsSearchResponse> {
   const query = since
     ? { range: { timestamp: { gt: since } } }

@@ -16,6 +16,11 @@ interface SyslogOptions {
   onSkip?: (line: string) => void;
 }
 
+/**
+ * Normalizes one raw syslog line and enqueues it. Malformed lines are skipped
+ * (reported via onSkip) rather than throwing — a single bad line must never
+ * take the listener down. Returns true if an event was enqueued.
+ */
 export async function handleSyslogLine(
   line: string,
   queue: TypedQueue<NormalizedEvent>,
@@ -30,6 +35,10 @@ export async function handleSyslogLine(
   return true;
 }
 
+/**
+ * Starts UDP + TCP syslog receivers. Each datagram (UDP) or newline-delimited
+ * line (TCP) is normalized and enqueued to the ingest queue.
+ */
 export function startSyslogListener(opts: SyslogOptions): Promise<SyslogListener> {
   const udpPort = opts.udpPort ?? 5514;
   const tcpPort = opts.tcpPort ?? 5514;
