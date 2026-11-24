@@ -1,0 +1,67 @@
+name: Require Tests
+
+on:
+  pull_request:
+    branches: [test, main]
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changed
+        uses: tj-actions/changed-files@v46
+        with:
+          files: |
+            **/*.ts
+
+      - name: Check test presence
+        env:
+          ALL_CHANGED: ${{ steps.changed.outputs.all_changed_files }}
+        run: |
+          # Collect source .ts files that require a paired test
+          # Exclusions: index.ts entrypoints, migrate.ts, schema package, declaration files
+          source_files=""
+          for f in $ALL_CHANGED; do
+            # skip non-src files
+            [[ "$f" != */src/* ]] && continue
+            # skip exclusions
+            [[ "$f" == */src/index.ts ]] && continue
+            [[ "$f" == */src/migrate.ts ]] && continue
+            [[ "$f" == packages/schema/src/* ]] && continue
+            [[ "$f" == *.d.ts ]] && continue
+            # skip test files themselves
+            [[ "$f" == *.test.ts ]] && continue
+            source_files="$source_files $f"
+          done
+
+          if [ -z "$source_files" ]; then
+            echo "No source files changed that require tests. OK."
+            exit 0
+          fi
+
+          echo "Source files changed:$source_files"
+
+          # Check if at least one .test.ts was added or modified
+          test_files=""
+          for f in $ALL_CHANGED; do
+            [[ "$f" == *.test.ts ]] && test_files="$test_files $f"
+          done
+
+          if [ -z "$test_files" ]; then
+            echo ""
+            echo "ERROR: Source files were changed but no .test.ts file was added or modified."
+            echo ""
+            echo "Changed source files:"
+            for f in $source_files; do echo "  $f"; done
+            echo ""
+            echo "Every PR that touches source code must include at least one test file."
+            exit 1
+          fi
+
+          echo "Test files found:$test_files"
+          echo "OK."
