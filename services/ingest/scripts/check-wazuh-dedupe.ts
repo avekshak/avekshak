@@ -5,6 +5,12 @@ import { sql } from "drizzle-orm";
 import { ingestQueue, startIngestWorker } from "../src/pipeline/ingestQueue.js";
 import { processWazuhResponse, type EsSearchResponse } from "../src/connectors/wazuh/poller.js";
 
+/**
+ * Integration check for 1.3: a stub ES server returns the same two fixture
+ * docs on every _search. We poll twice through the real queue+worker+DB path
+ * and assert the second poll inserts zero new rows (dedupe holds).
+ */
+
 const fixture: EsSearchResponse = {
   hits: {
     hits: [
@@ -37,7 +43,8 @@ async function countWazuh(): Promise<number> {
 }
 
 async function main() {
-  const server = http.createServer((_req, res) => {
+  // Stub ES server: always returns the same two docs.
+  const server = http.createServer((req, res) => {
     res.setHeader("content-type", "application/json");
     res.end(JSON.stringify(fixture));
   });
@@ -46,6 +53,7 @@ async function main() {
   const port = typeof addr === "object" && addr ? addr.port : 0;
   console.log(`stub ES on :${port}`);
 
+  // Clean slate.
   await getDb().execute(sql`delete from ${events} where source = 'wazuh'`);
 
   const worker = startIngestWorker();
@@ -63,7 +71,7 @@ async function main() {
   }
 
   await pollOnce();
-  await sleep(1500);
+  await sleep(1500); // let worker drain
   const afterFirst = await countWazuh();
   console.log("rows after first poll:", afterFirst);
 

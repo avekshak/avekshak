@@ -47,6 +47,7 @@ describe("processWazuhResponse", () => {
     const b = fakeQueue();
     await processWazuhResponse(res, b.queue);
 
+    // Same source _id → same event id across independent polls.
     expect(a.enqueued[0].id).toBe(b.enqueued[0].id);
   });
 

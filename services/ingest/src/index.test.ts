@@ -109,6 +109,7 @@ describe("normalizeAws", () => {
     resource: { resourceType: "Instance" },
   };
 
+  
   it("normalizes a CloudTrail success event", () => {
     const ev = normalizeAws(cloudTrail)!;
     expect(NormalizedEventSchema.safeParse(ev).success).toBe(true);

@@ -13,10 +13,16 @@ export const INGEST_QUEUE = "ingest";
  * ingest→fusion import cycle; fusion references the same string. */
 export const DETECT_QUEUE = "detect";
 
+/** Producer handle connectors use to enqueue normalized events. */
 export function ingestQueue(): TypedQueue<NormalizedEvent> {
   return createQueue<NormalizedEvent>(INGEST_QUEUE);
 }
 
+/**
+ * Consumer: pulls normalized events off the ingest queue, persists them, then
+ * forwards the persisted event to the detect queue for the fusion stage. One
+ * worker backs all three connectors — they only ever enqueue.
+ */
 export function startIngestWorker(): Worker<NormalizedEvent> {
   const detect = createQueue<NormalizedEvent>(DETECT_QUEUE);
   return createWorker<NormalizedEvent>(INGEST_QUEUE, async (job) => {

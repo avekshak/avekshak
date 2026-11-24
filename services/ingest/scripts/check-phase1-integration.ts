@@ -12,8 +12,17 @@ import {
 import { processAwsRecords, extractAwsRecords } from "../src/connectors/aws/reader.js";
 import { readFile } from "node:fs/promises";
 
+/**
+ * Phase 1 integration gate. All three connectors (syslog socket, wazuh HTTP
+ * poll, aws file read) feed one shared ingest queue drained by a single worker
+ * into Postgres. Each stream carries one deliberately malformed item to prove
+ * bad input is skipped (not crashed). We then assert per-source counts match
+ * the valid-input counts.
+ */
+
 const SYSLOG_UDP_PORT = 5516;
 
+// --- Wazuh fixture (2 valid docs + 1 malformed) ---
 const wazuhFixture: EsSearchResponse = {
   hits: {
     hits: [
@@ -34,15 +43,17 @@ const wazuhFixture: EsSearchResponse = {
           agent: { name: "db-prod-1", ip: "10.0.0.20" },
         },
       },
+      // Malformed: no usable timestamp → normalizeWazuh returns null → skipped.
       { _id: "p1-wz-bad", _source: { timestamp: "not-a-date" } },
     ],
   },
 };
 
+// --- Syslog lines (2 valid + 1 malformed) ---
 const syslogLines = [
   "<34>Jun  1 02:10:00 db-prod-1 sshd[1010]: Failed password for root from 203.0.113.9 port 2222 ssh2",
   "<38>Jun  1 02:10:05 db-prod-1 sshd[1011]: Accepted password for owner from 10.0.0.5 port 3333 ssh2",
-  "",
+  "", // empty → normalizeSyslog returns null → skipped
 ];
 
 async function countBySource(source: string): Promise<number> {
@@ -53,6 +64,7 @@ async function countBySource(source: string): Promise<number> {
 }
 
 async function main() {
+  // Clean slate for all three sources.
   await getDb().execute(
     sql`delete from ${events} where source in ('syslog','wazuh','aws')`,
   );
@@ -60,6 +72,7 @@ async function main() {
   const worker = startIngestWorker();
   const queue = ingestQueue();
 
+  // --- 1. Syslog: start listener, blast UDP lines (incl. one malformed) ---
   let syslogSkips = 0;
   const listener = await startSyslogListener({
     udpPort: SYSLOG_UDP_PORT,
@@ -78,6 +91,7 @@ async function main() {
   }
   udp.close();
 
+  // --- 2. Wazuh: stub ES server, one poll (incl. one malformed doc) ---
   const server = http.createServer((_req, res) => {
     res.setHeader("content-type", "application/json");
     res.end(JSON.stringify(wazuhFixture));
@@ -95,6 +109,7 @@ async function main() {
     queue,
   );
 
+  // --- 3. AWS: read both fixtures from disk (incl. the AccessDenied record) ---
   const ctRaw = await readFile(
     new URL("../fixtures/cloudtrail.json", import.meta.url),
     "utf8",
@@ -113,6 +128,7 @@ async function main() {
   console.log("wazuh result:", wazuhResult);
   console.log("aws result:", awsResult);
 
+  // Let the single worker drain all three streams.
   await sleep(2000);
 
   const syslogRows = await countBySource("syslog");

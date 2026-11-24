@@ -1,6 +1,14 @@
 import { getDb, events } from "@avekshak/db";
 import type { NormalizedEvent } from "@avekshak/schema";
 
+/**
+ * Flattens a NormalizedEvent (nested actor/target/location) into the events
+ * table's columns and inserts it. The single place connectors funnel into, so
+ * the raw→row mapping lives in exactly one spot.
+ *
+ * Insert is idempotent on the primary key: a repeated event id (e.g. the same
+ * Wazuh doc seen on an overlapping poll) is a no-op rather than a duplicate.
+ */
 export async function writeEvent(ev: NormalizedEvent): Promise<void> {
   await getDb()
     .insert(events)

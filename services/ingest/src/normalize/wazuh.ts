@@ -4,10 +4,14 @@ import {
   type NormalizedEvent,
 } from "@avekshak/schema";
 
+/**
+ * Shape of a Wazuh alert document (subset we rely on). Wazuh stores alerts in
+ * an Elasticsearch index; each hit's _source looks roughly like this.
+ */
 interface WazuhDoc {
   timestamp?: string;
   rule?: {
-    level?: number;
+    level?: number; // 0..15
     description?: string;
     groups?: string[];
   };
@@ -20,6 +24,7 @@ interface WazuhDoc {
   [k: string]: unknown;
 }
 
+/** Wazuh rule.level is 0..15; scale to 0..100. */
 function levelToSeverity(level: number | undefined): number {
   if (typeof level !== "number" || Number.isNaN(level)) return 20;
   const clamped = Math.max(0, Math.min(15, level));
@@ -44,6 +49,14 @@ function categoryFromGroups(groups: string[] | undefined): {
   return { category: "system", action: "alert", outcome: "unknown" };
 }
 
+/**
+ * Pure normalizer: one Wazuh alert doc → NormalizedEvent, or null if the input
+ * is not a usable object. Never throws.
+ *
+ * `id` lets the caller pass a deterministic UUID (derived from the source
+ * doc's stable `_id`) so repeated polls of the same document produce the same
+ * event id and can be deduped on insert. When omitted, a random id is used.
+ */
 export function normalizeWazuh(doc: unknown, id?: string): NormalizedEvent | null {
   if (doc === null || typeof doc !== "object" || Array.isArray(doc)) return null;
   const d = doc as WazuhDoc;
