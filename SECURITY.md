@@ -12,7 +12,9 @@
 
 Aavekshak is a security tool — responsible disclosure is especially important here.
 
-To report a vulnerability, email **kunal.kumar.dey@sap.com** with:
+To report a vulnerability, use **[GitHub's private vulnerability reporting](https://github.com/avekshak/avekshak/security/advisories/new)**.
+
+Please include:
 
 - A description of the vulnerability
 - Steps to reproduce
