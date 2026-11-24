@@ -58,3 +58,6 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+
+      - name: Check coverage thresholds
+        run: pnpm -r --filter='!@avekshak/db' --filter='!@avekshak/web' run test -- --coverage
