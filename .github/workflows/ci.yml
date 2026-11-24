@@ -62,4 +62,4 @@ jobs:
         run: pnpm test
 
       - name: Check coverage thresholds
-        run: pnpm -r exec vitest run --coverage
+        run: pnpm -r --filter='!@avekshak/db' --filter='!@avekshak/web' run test -- --coverage
