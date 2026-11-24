@@ -11,38 +11,73 @@ Please read it before contributing.
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/aavekshak.git`
-3. Install dependencies: `npm install`
-4. Start the dev stack: `docker compose up -d`
-5. Create a branch: `git checkout -b feat/your-feature-name`
+3. Install dependencies: `pnpm install`
+4. Create a branch: `git checkout -b feat/your-feature-name`
 
 ## Development Setup
 
 **Requirements:**
-- Node.js 20+
-- Docker Desktop
+- Node.js 22+
+- Docker Desktop (for PostgreSQL and Redis)
 - Ollama with `llama3.2:3b` pulled (`ollama pull llama3.2:3b`)
+- pnpm 12+ (`npm install -g pnpm`)
 - 8GB RAM minimum (16GB recommended)
 
-**Start everything:**
+**Start infrastructure:**
 ```bash
-docker compose up -d        # PostgreSQL, Redis, Ollama
-npm run dev                 # All services in watch mode
+docker compose up -d        # PostgreSQL and Redis only
+```
+
+**Run a service:**
+```bash
+pnpm --filter @avekshak/api dev        # API service
+pnpm --filter @avekshak/agent dev      # Agent service
+pnpm --filter @avekshak/ingest syslog  # Syslog connector
+```
+
+**Build all packages:**
+```bash
+pnpm build
+```
+
+**Run all tests:**
+```bash
+pnpm test
+```
+
+## Project Structure
+
+```
+aavekshak/
+├── services/
+│   ├── ingest/        # Connector pollers (CloudTrail, Wazuh, Syslog)
+│   ├── fusion/        # Detection engine + alert promotion
+│   ├── correlation/   # Groups alerts into incidents
+│   ├── agent/         # LLM triage + ledger writer
+│   └── api/           # REST API
+├── apps/
+│   └── web/           # React dashboard
+├── packages/
+│   ├── schema/        # Shared types
+│   ├── queue/         # BullMQ wrapper
+│   └── db/            # Database client + migrations
+└── detections/        # YAML detection rules
 ```
 
 ## Types of Contributions
 
 - **Bug fixes** — open an issue first to describe the bug
-- **Detection rules** — add YAML rules under `packages/detections/rules/`
+- **Detection rules** — add YAML rules under `detections/`
 - **Connectors** — new data source adapters under `services/ingest/src/connectors/`
 - **Documentation** — always welcome
 
 ## Pull Request Guidelines
 
 - Keep PRs focused — one feature or fix per PR
-- Include tests for behavioral changes
+- Include tests for any behavioural changes
 - Update documentation if you change an interface
-- Add your rule ID if adding a detection rule
-- Run `npm test` before submitting
+- Run `pnpm test` before submitting
+- PRs must target the `test` branch, not `main`
 
 ## Commit Message Format
 
