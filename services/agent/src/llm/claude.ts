@@ -3,7 +3,7 @@ import type { Verdict } from "@avekshak/schema";
 import { type IncidentContext, type LlmProvider } from "./provider.js";
 import { SYSTEM_PROMPT, triageWithRetry } from "./prompt.js";
 
-const DEFAULT_MODEL = "claude-sonnet-4-6";
+const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 
 /**
  * Claude-backed triage provider (the MVP default). The shared triageWithRetry
