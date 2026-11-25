@@ -4,6 +4,8 @@ import {
   listIncidents,
   getIncidentDetail,
   decideIncident,
+  listAlerts,
+  listEvents,
   IncidentNotFoundError,
   InvalidDecisionStateError,
 } from "./incidents.js";
@@ -18,6 +20,8 @@ vi.mock("./incidents.js", () => ({
   listIncidents: vi.fn(),
   getIncidentDetail: vi.fn(),
   decideIncident: vi.fn(),
+  listAlerts: vi.fn(),
+  listEvents: vi.fn(),
   IncidentNotFoundError: class IncidentNotFoundError extends Error {
     constructor(id: string) {
       super(`incident not found: ${id}`);
@@ -304,5 +308,90 @@ describe("POST /incidents/:id/reject", () => {
     const body = res.json();
     expect(body.error).toBe("invalid_decision_state");
     expect(body.status).toBe("rejected");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Fixtures for alerts / events
+// ---------------------------------------------------------------------------
+
+const baseAlert = {
+  id: "alert-1",
+  eventId: "event-1",
+  ruleId: "auth-failed-login",
+  title: "Failed authentication",
+  severity: 40,
+  ts: "2026-06-01T02:00:00.000Z",
+  actorIp: "203.0.113.42",
+};
+
+const baseEvent = {
+  id: "event-1",
+  ts: "2026-06-01T02:00:00.000Z",
+  source: "syslog" as const,
+  category: "authentication",
+  action: "login_failed",
+  outcome: "failure" as const,
+  severity: 14,
+  actor: { ip: "203.0.113.42" },
+  target: {},
+  raw: { line: "<38>Nov 25 15:28:41 host target-app: Failed login" },
+};
+
+// ---------------------------------------------------------------------------
+// GET /alerts
+// ---------------------------------------------------------------------------
+
+describe("GET /alerts", () => {
+  beforeEach(() => {
+    vi.mocked(listAlerts).mockResolvedValue([baseAlert]);
+  });
+  afterEach(() => vi.resetAllMocks());
+
+  it("returns a list of alerts under the alerts key", async () => {
+    const app = buildApp();
+    const res = await app.inject({ method: "GET", url: "/alerts" });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(Array.isArray(body.alerts)).toBe(true);
+    expect(body.alerts).toHaveLength(1);
+    expect(body.alerts[0].id).toBe("alert-1");
+  });
+
+  it("returns an empty array when there are no alerts", async () => {
+    vi.mocked(listAlerts).mockResolvedValue([]);
+    const app = buildApp();
+    const res = await app.inject({ method: "GET", url: "/alerts" });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().alerts).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// GET /events
+// ---------------------------------------------------------------------------
+
+describe("GET /events", () => {
+  beforeEach(() => {
+    vi.mocked(listEvents).mockResolvedValue([baseEvent]);
+  });
+  afterEach(() => vi.resetAllMocks());
+
+  it("returns a list of events under the events key", async () => {
+    const app = buildApp();
+    const res = await app.inject({ method: "GET", url: "/events" });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(Array.isArray(body.events)).toBe(true);
+    expect(body.events).toHaveLength(1);
+    expect(body.events[0].id).toBe("event-1");
+  });
+
+  it("returns an empty array when there are no events", async () => {
+    vi.mocked(listEvents).mockResolvedValue([]);
+    const app = buildApp();
+    const res = await app.inject({ method: "GET", url: "/events" });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().events).toHaveLength(0);
   });
 });
