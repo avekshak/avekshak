@@ -1,4 +1,5 @@
 import type { Incident, IncidentDetail, DecisionResult } from "./types.js";
+import type { Alert, NormalizedEvent } from "@avekshak/schema";
 
 // All requests go through the Vite dev proxy: "/api/*" → http://localhost:8000
 // (see vite.config.ts), so the browser stays same-origin and the API needs no
@@ -55,6 +56,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export async function listIncidents(): Promise<Incident[]> {
   const body = await request<{ incidents: Incident[] }>("/incidents");
   return body.incidents;
+}
+
+/** List all alerts, most recent first. */
+export async function listAlerts(): Promise<Alert[]> {
+  const body = await request<{ alerts: Alert[] }>("/alerts");
+  return body.alerts;
+}
+
+/** List all raw events, most recent first. */
+export async function listEvents(): Promise<NormalizedEvent[]> {
+  const body = await request<{ events: NormalizedEvent[] }>("/events");
+  return body.events;
 }
 
 /** Fetch one incident with its alerts, events, and full ledger. 404 → ApiError. */
