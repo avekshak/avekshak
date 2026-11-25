@@ -27,19 +27,207 @@ services:
       timeout: 3s
       retries: 10
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: avekshak-ollama
+  wazuh-manager:
+    image: wazuh/wazuh-manager:4.9.2
+    container_name: avekshak-wazuh-manager
+    hostname: wazuh-manager
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 655360
+        hard: 655360
     ports:
-      - "11434:11434"
+      - "1514:1514/udp"
+      - "1515:1515"
+      - "514:514/udp"
+      - "55000:55000"
+    environment:
+      - INDEXER_URL=https://wazuh-indexer:9200
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=SecretPassword
+      - FILEBEAT_SSL_VERIFICATION_MODE=full
+      - SSL_CERTIFICATE_AUTHORITIES=/etc/ssl/root-ca.pem
+      - SSL_CERTIFICATE=/etc/ssl/filebeat.pem
+      - SSL_KEY=/etc/ssl/filebeat.key
+      - API_USERNAME=wazuh-wui
+      - API_PASSWORD=MyS3cr37P450r.*-
     volumes:
-      - avekshak-ollama:/root/.ollama
+      - wazuh-manager-config:/var/ossec/etc
+      - wazuh-manager-logs:/var/ossec/logs
+      - wazuh-manager-queue:/var/ossec/queue
+    depends_on:
+      wazuh-indexer:
+        condition: service_healthy
+
+  wazuh-indexer:
+    image: wazuh/wazuh-indexer:4.9.2
+    container_name: avekshak-wazuh-indexer
+    hostname: wazuh-indexer
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "9200:9200"
+    environment:
+      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=SecretPassword
+      - OPENSEARCH_PATH_CONF=/usr/share/wazuh-indexer/config
+    volumes:
+      - wazuh-indexer-data:/var/lib/wazuh-indexer
     healthcheck:
-      test: ["CMD-SHELL", "ollama list || exit 1"]
+      test: ["CMD-SHELL", "curl -sku admin:SecretPassword https://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+
+  wazuh-dashboard:
+    image: wazuh/wazuh-dashboard:4.9.2
+    container_name: avekshak-wazuh-dashboard
+    hostname: wazuh-dashboard
+    ports:
+      - "5601:5601"
+    environment:
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=SecretPassword
+      - WAZUH_API_URL=https://wazuh-manager
+      - DASHBOARD_USERNAME=kibanaserver
+      - DASHBOARD_PASSWORD=kibanaserver
+      - API_USERNAME=wazuh-wui
+      - API_PASSWORD=MyS3cr37P450r.*-
+    depends_on:
+      wazuh-indexer:
+        condition: service_healthy
+
+  # ── avekshak pipeline services ─────────────────────────────────────────────
+
+  ingest-syslog:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+    container_name: avekshak-ingest-syslog
+    command: node services/ingest/dist/connectors/syslog/index.js
+    ports:
+      - "5514:5514/udp"
+      - "5514:5514/tcp"
+    environment:
+      - POSTGRES_URL=postgres://avekshak:avekshak@postgres:5432/avekshak
+      - REDIS_URL=redis://redis:6379
+      - SYSLOG_UDP_PORT=5514
+      - SYSLOG_TCP_PORT=5514
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  ingest-wazuh:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+    container_name: avekshak-ingest-wazuh
+    command: node services/ingest/dist/connectors/wazuh/index.js
+    environment:
+      - POSTGRES_URL=postgres://avekshak:avekshak@postgres:5432/avekshak
+      - REDIS_URL=redis://redis:6379
+      - WAZUH_ES_URL=https://admin:SecretPassword@wazuh-indexer:9200
+      - WAZUH_ES_INDEX=wazuh-alerts-*
+      - WAZUH_POLL_MS=10000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      wazuh-indexer:
+        condition: service_healthy
+    restart: unless-stopped
+
+  fusion:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+    container_name: avekshak-fusion
+    command: node services/fusion/dist/index.js
+    environment:
+      - POSTGRES_URL=postgres://avekshak:avekshak@postgres:5432/avekshak
+      - REDIS_URL=redis://redis:6379
+      - DETECTIONS_DIR=/app/detections
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  correlation:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+    container_name: avekshak-correlation
+    command: node services/correlation/dist/index.js
+    environment:
+      - POSTGRES_URL=postgres://avekshak:avekshak@postgres:5432/avekshak
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+    container_name: avekshak-agent
+    command: node services/agent/dist/index.js
+    environment:
+      - POSTGRES_URL=postgres://avekshak:avekshak@postgres:5432/avekshak
+      - REDIS_URL=redis://redis:6379
+      - LLM_PROVIDER=claude
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-haiku-4-5-20251001}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+    container_name: avekshak-api
+    command: node services/api/dist/index.js
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_URL=postgres://avekshak:avekshak@postgres:5432/avekshak
+      - REDIS_URL=redis://redis:6379
+      - API_PORT=8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
 
 volumes:
   avekshak-pgdata:
-  avekshak-ollama:
+  wazuh-manager-config:
+  wazuh-manager-logs:
+  wazuh-manager-queue:
+  wazuh-indexer-data:
