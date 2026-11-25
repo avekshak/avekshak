@@ -1,0 +1,28 @@
+{
+  "name": "@avekshak/web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "preview": "vite preview",
+    "seed": "tsx scripts/seed-demo.ts"
+  },
+  "dependencies": {
+    "@avekshak/schema": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@avekshak/db": "workspace:*",
+    "@types/react": "^18.3.12",
+    "drizzle-orm": "^0.38.3",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}

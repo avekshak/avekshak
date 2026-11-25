@@ -1,0 +1,24 @@
+{
+  "Records": [
+    {
+      "eventID": "ct-0001",
+      "eventTime": "2026-06-01T04:00:00Z",
+      "eventName": "ConsoleLogin",
+      "eventSource": "signin.amazonaws.com",
+      "sourceIPAddress": "203.0.113.50",
+      "awsRegion": "us-east-1",
+      "userIdentity": { "type": "IAMUser", "userName": "owner" },
+      "responseElements": { "ConsoleLogin": "Success" }
+    },
+    {
+      "eventID": "ct-0002",
+      "eventTime": "2026-06-01T04:05:00Z",
+      "eventName": "GetObject",
+      "eventSource": "s3.amazonaws.com",
+      "sourceIPAddress": "203.0.113.50",
+      "awsRegion": "us-east-1",
+      "errorCode": "AccessDenied",
+      "userIdentity": { "type": "IAMUser", "userName": "owner" }
+    }
+  ]
+}
