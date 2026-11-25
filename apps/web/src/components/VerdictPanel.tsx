@@ -1,11 +1,24 @@
 import type { Incident } from "@avekshak/schema";
 import { VerdictBadge } from "./SeverityBadge.js";
 
-/**
- * The agent's conclusion: verdict + confidence, with the rationale and the
- * recommended action it would take. Null verdict means the incident hasn't been
- * triaged yet.
- */
+function ConfidenceBar({ confidence, verdict }: { confidence: number; verdict: string }) {
+  const color =
+    verdict === "critical"   ? "var(--red)"   :
+    verdict === "suspicious" ? "var(--amber)" : "var(--green)";
+
+  return (
+    <div className="conf-bar-wrap" aria-label={`Confidence ${confidence}%`}>
+      <div className="conf-bar-track">
+        <div
+          className="conf-bar-fill"
+          style={{ width: `${confidence}%`, background: color, boxShadow: `0 0 6px ${color}` }}
+        />
+      </div>
+      <span className="conf-bar-label">{confidence}%</span>
+    </div>
+  );
+}
+
 export function VerdictPanel({ verdict }: { verdict: Incident["verdict"] }) {
   return (
     <section className="panel">
@@ -19,7 +32,9 @@ export function VerdictPanel({ verdict }: { verdict: Incident["verdict"] }) {
             <VerdictBadge verdict={verdict} />
           </dd>
           <dt>Confidence</dt>
-          <dd>{verdict.confidence}%</dd>
+          <dd>
+            <ConfidenceBar confidence={verdict.confidence} verdict={verdict.verdict} />
+          </dd>
           <dt>Rationale</dt>
           <dd>{verdict.rationale}</dd>
           <dt>Recommended action</dt>
