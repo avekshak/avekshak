@@ -96,6 +96,24 @@ export async function listIncidents(): Promise<IncidentSummary[]> {
   return rows.map(toIncident);
 }
 
+/** List all alerts, most recent first. */
+export async function listAlerts(): Promise<Alert[]> {
+  const rows = await getDb()
+    .select()
+    .from(alerts)
+    .orderBy(desc(alerts.ts));
+  return rows.map(toAlert);
+}
+
+/** List all raw events, most recent first. */
+export async function listEvents(): Promise<NormalizedEvent[]> {
+  const rows = await getDb()
+    .select()
+    .from(events)
+    .orderBy(desc(events.ts));
+  return rows.map(toEvent);
+}
+
 /** Fetch one incident with its linked alerts, their events, and the full ledger. */
 export async function getIncidentDetail(incidentId: string): Promise<IncidentDetail> {
   const db = getDb();

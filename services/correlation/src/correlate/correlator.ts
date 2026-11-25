@@ -65,11 +65,35 @@ export class Correlator {
     return rows[0]?.id ?? null;
   }
 
+  /** Acquire a Redis lock; returns a release function (no-op if lock was not held). */
+  private async lock(key: string, ttlMs = 10_000): Promise<() => Promise<void>> {
+    const lockKey = `lock:${key}`;
+    const token = uuidv4();
+    const deadline = Date.now() + ttlMs;
+    while (Date.now() < deadline) {
+      const ok = await this.redis.set(lockKey, token, "PX", ttlMs, "NX");
+      if (ok) {
+        return async () => {
+          // Only release if we still own the lock (Lua for atomicity).
+          const script = `if redis.call("get",KEYS[1])==ARGV[1] then return redis.call("del",KEYS[1]) else return 0 end`;
+          await this.redis.eval(script, 1, lockKey, token);
+        };
+      }
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    // Lock timeout — proceed without lock rather than block forever.
+    return async () => {};
+  }
+
   async correlate(alert: Alert): Promise<CorrelateResult> {
     // Alerts with no correlatable identity get a unique singleton key so they
     // each open their own incident (never grouped with unrelated noise).
     const correlation = correlationKey(alert) ?? `singleton:${alert.id}`;
     const db = getDb();
+
+    // Acquire per-correlation-key lock to prevent concurrent jobs from both
+    // seeing no active incident and racing to create duplicate incidents.
+    const release = await this.lock(`corr:${correlation}`);
 
     let incidentId = await this.findActiveIncident(correlation, alert.ts);
     let createdIncident = false;
@@ -85,8 +109,17 @@ export class Correlator {
         createdAt: new Date(alert.ts),
         updatedAt: new Date(alert.ts),
       });
+      // Seed Redis immediately so any job that acquires the lock next sees it.
+      await this.redis.set(
+        this.activeKey(correlation),
+        incidentId,
+        "PX",
+        CORRELATION_WINDOW_MS,
+      );
       createdIncident = true;
     }
+
+    await release();
 
     // Link idempotently (composite PK (incidentId, alertId)).
     const linkedRows = await db
