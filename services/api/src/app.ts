@@ -2,7 +2,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import { getDb, closeDb } from "@avekshak/db";
 import { sql } from "drizzle-orm";
 import { Redis } from "ioredis";
-import { listIncidents, getIncidentDetail, decideIncident, IncidentNotFoundError, InvalidDecisionStateError } from "./incidents.js";
+import { listIncidents, getIncidentDetail, decideIncident, listAlerts, listEvents, IncidentNotFoundError, InvalidDecisionStateError } from "./incidents.js";
 
 const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
 
@@ -24,6 +24,18 @@ export function buildApp(): FastifyInstance {
   app.get("/incidents", async () => {
     const items = await listIncidents();
     return { incidents: items };
+  });
+
+  // List all alerts, most recent first.
+  app.get("/alerts", async () => {
+    const items = await listAlerts();
+    return { alerts: items };
+  });
+
+  // List all raw events, most recent first.
+  app.get("/events", async () => {
+    const items = await listEvents();
+    return { events: items };
   });
 
   // One incident with its alerts, events, verdict, and full ledger trail.
