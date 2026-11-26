@@ -1,11 +1,16 @@
-# Aavekshak
+# Avekshak
 
 **Open-source AI Security Operations Center. Runs on your own machine.**
 
-Aavekshak reads every security alert for you, groups related ones into a single incident, investigates it with a local AI agent, and shows you its work — so the one attack that matters never gets buried under five thousand that don't.
+[![CI](https://github.com/avekshak/avekshak/actions/workflows/ci.yml/badge.svg)](https://github.com/avekshak/avekshak/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/avekshak/avekshak/badge)](https://securityscorecards.dev/viewer/?uri=github.com/avekshak/avekshak)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/avekshak/avekshak)](https://github.com/avekshak/avekshak/releases)
+
+Avekshak reads every security alert for you, groups related ones into a single incident, investigates it with a local AI agent, and shows you its work — so the one attack that matters never gets buried under five thousand that don't.
 
 ```
-5,000 alerts/day  →  Aavekshak  →  12 incidents  →  AI verdict  →  You decide
+5,000 alerts/day  →  Avekshak  →  12 incidents  →  AI verdict  →  You decide
 ```
 
 ---
@@ -16,7 +21,7 @@ Modern security tools generate thousands of alerts every day. A mid-sized organi
 
 ## The Solution
 
-Aavekshak does the first pass automatically:
+Avekshak does the first pass automatically:
 
 1. **Collects** events from cloud accounts, servers, and security tools
 2. **Detects** suspicious patterns using a focused rule engine
@@ -50,8 +55,8 @@ Aavekshak does the first pass automatically:
 
 ollama pull llama3.2:3b
 
-git clone https://github.com/aavekshak/aavekshak.git
-cd aavekshak
+git clone https://github.com/avekshak/avekshak.git
+cd avekshak
 cp .env.example .env
 docker compose up
 ```
@@ -61,7 +66,7 @@ Open `http://localhost:3000` to see the dashboard.
 ## Project Structure
 
 ```
-aavekshak/
+avekshak/
 ├── services/
 │   ├── ingest/        # Connector pollers (CloudTrail, Wazuh, Syslog)
 │   ├── fusion/        # Detection engine + alert promotion
