@@ -19,7 +19,7 @@
     "@anthropic-ai/sdk": "^0.32.1",
     "drizzle-orm": "^0.38.3",
     "ioredis": "^5.4.1",
-    "uuid": "^11.0.3"
+    "uuid": "^14.0.3"
   },
   "devDependencies": {
     "@types/uuid": "^10.0.0",
