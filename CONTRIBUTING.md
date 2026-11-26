@@ -98,4 +98,4 @@ rule, or documentation improvement with clear expected output.
 
 ## Questions
 
-Open a GitHub Discussion for design questions or ideas before building.
+Open a GitHub Discussion for design questions or ideas before you start building.
