@@ -2226,8 +2226,8 @@ packages:
   fast-uri@3.1.9:
     resolution: {integrity: sha512-hS/0Wt3Ya043oKXs0sIxrMpKQITXhMLIrVAKKXi4gozGC9v7YRWVnXIZzjNPTO02M9BdxLCWqK1yRXgNziVyJQ==}
 
-  fast-uri@4.2.3:
-    resolution: {integrity: sha512-I1PXwP5eAhlNlcdpjt9CgB59op2ZvZfxw+BkqGFVIUOgNpCVTcTqp3HhTX7brxj5vsip+nSY4nTvff+eIA76hg==}
+  fast-uri@4.2.4:
+    resolution: {integrity: sha512-ARrctoImibWG27hlPe0Gc93d6HwZBYipqd9QhnXyYzS101vKmqx2J/1R8kzhnnYTph0umtJqu9rqIuYtVDaAOg==}
 
   fastify@5.12.8:
     resolution: {integrity: sha512-moP8exb2sCHLUbJkwp+I6C0padhy4D8lp0SdmzY7HhSdZuqm7O/u3o2aq7u8okaQ//33QDzj3G/u+FsSdB8Qzw==}
@@ -3978,7 +3978,7 @@ snapshots:
     dependencies:
       ajv: 8.20.0
       ajv-formats: 3.0.1
-      fast-uri: 4.2.3
+      fast-uri: 4.2.4
 
   '@fastify/deepmerge@3.2.4': {}
 
@@ -4987,7 +4987,7 @@ snapshots:
       '@fastify/merge-json-schemas': 0.2.2
       ajv: 8.20.0
       ajv-formats: 3.0.1
-      fast-uri: 4.2.3
+      fast-uri: 4.2.4
       json-schema-ref-resolver: 3.0.1
       rfdc: 1.4.1
 
@@ -4997,7 +4997,7 @@ snapshots:
 
   fast-uri@3.1.9: {}
 
-  fast-uri@4.2.3: {}
+  fast-uri@4.2.4: {}
 
   fastify@5.12.8:
     dependencies:
