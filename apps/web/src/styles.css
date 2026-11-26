@@ -121,6 +121,65 @@ body {
 .kpi-card {
   animation: fade-up 0.35s ease both;
 }
+
+.kpi-card:nth-child(1) { animation-delay: 0.20s; }
+.kpi-card:nth-child(2) { animation-delay: 0.26s; }
+.kpi-card:nth-child(3) { animation-delay: 0.32s; }
+.kpi-card:nth-child(4) { animation-delay: 0.38s; }
+.kpi-card:nth-child(5) { animation-delay: 0.44s; }
+.kpi-card:nth-child(6) { animation-delay: 0.50s; }
+
+/* Toolbar fades in after KPI */
+.list-toolbar { animation: fade-in 0.3s 0.55s ease both; }
+
+/* ============================================================
+   GLOBAL UTILITY
+   ============================================================ */
+
+.muted { color: var(--muted); }
+
+.mono {
+  font-family: var(--mono);
+  font-size: 0.875em;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 6px 0;
+  font-size: 13px;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s;
+  font-weight: 500;
+}
+
+.link-btn:hover { color: var(--accent-hover); text-decoration: underline; }
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+
+/* Stagger: nth-child delay, capped at 10 so it doesn't drag */
+.incident-card:nth-child(1)  { animation-delay: 0.28s; }
+.incident-card:nth-child(2)  { animation-delay: 0.34s; }
+.incident-card:nth-child(3)  { animation-delay: 0.40s; }
+.incident-card:nth-child(4)  { animation-delay: 0.46s; }
+.incident-card:nth-child(5)  { animation-delay: 0.52s; }
+.incident-card:nth-child(6)  { animation-delay: 0.58s; }
+.incident-card:nth-child(7)  { animation-delay: 0.62s; }
+.incident-card:nth-child(8)  { animation-delay: 0.65s; }
+.incident-card:nth-child(9)  { animation-delay: 0.68s; }
+.incident-card:nth-child(n+10){ animation-delay: 0.70s; }
+
+/* KPI cards stagger */
+.kpi-card {
+  animation: fade-up 0.35s ease both;
+}
 .kpi-card:nth-child(1) { animation-delay: 0.20s; }
 .kpi-card:nth-child(2) { animation-delay: 0.26s; }
 .kpi-card:nth-child(3) { animation-delay: 0.32s; }
@@ -412,6 +471,41 @@ body {
   gap: 12px;
   margin-bottom: 16px;
   flex-wrap: wrap;
+}
+
+.list-toolbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@keyframes poll-flash {
+  0%   { opacity: 1; color: var(--accent); }
+  100% { opacity: 1; color: var(--muted);  }
+}
+
+.poll-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.3px;
+  transition: color 0.3s;
+}
+
+.poll-indicator--fresh {
+  animation: poll-flash 1.2s ease forwards;
+}
+
+.poll-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: pulse-dot 3s ease-in-out infinite;
 }
 
 .list-count {

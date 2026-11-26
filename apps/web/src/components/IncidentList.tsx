@@ -1,11 +1,51 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Incident } from "@avekshak/schema";
 import { listIncidents, ApiError } from "../api.js";
 import { SeverityBadge, VerdictBadge, StatusBadge } from "./SeverityBadge.js";
 
+const POLL_INTERVAL_MS = 5_000; // 5 s
+
 type SortDir = "desc" | "asc";
 type VerdictFilter = "all" | "critical" | "suspicious" | "benign" | "untriaged";
 type StatusFilter  = "all" | "open" | "triaged" | "approved" | "rejected" | "closed";
+
+/* ---------- Polling hook ---------- */
+
+function usePolledIncidents() {
+  const [incidents, setIncidents] = useState<Incident[] | null>(null);
+  const [error, setError]         = useState<string | null>(null);
+  const [lastFetched, setLastFetched] = useState<Date | null>(null);
+  const [fresh, setFresh]         = useState(false);
+  const [, setTick]               = useState(0);
+  const intervalRef               = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const fetch_ = useCallback(async (isFirst: boolean) => {
+    try {
+      const rows = await listIncidents();
+      setIncidents(rows);
+      setError(null);
+      setLastFetched(new Date());
+      if (!isFirst) {
+        setFresh(true);
+        setTimeout(() => setFresh(false), 1200);
+      }
+    } catch (err: unknown) {
+      setError(err instanceof ApiError ? err.message : "failed to load incidents");
+    }
+  }, []);
+
+  useEffect(() => {
+    fetch_(true);
+    intervalRef.current = setInterval(() => fetch_(false), POLL_INTERVAL_MS);
+    const tickRef = setInterval(() => setTick((n) => n + 1), 30_000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      clearInterval(tickRef);
+    };
+  }, [fetch_]);
+
+  return { incidents, error, lastFetched, fresh };
+}
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -200,6 +240,8 @@ function Toolbar({
   onVerdictFilter,
   statusFilter,
   onStatusFilter,
+  lastFetched,
+  fresh,
 }: {
   total: number;
   sortDir: SortDir;
@@ -208,15 +250,25 @@ function Toolbar({
   onVerdictFilter: (v: VerdictFilter) => void;
   statusFilter: StatusFilter;
   onStatusFilter: (s: StatusFilter) => void;
+  lastFetched: Date | null;
+  fresh: boolean;
 }) {
   const hasActiveFilter = verdictFilter !== "all" || statusFilter !== "all";
 
   return (
     <div className="list-toolbar">
-      <p className="list-count">
-        <span className="list-count-num">{total}</span>{" "}
-        {total === 1 ? "incident" : "incidents"} in queue
-      </p>
+      <div className="list-toolbar-left">
+        <p className="list-count">
+          <span className="list-count-num">{total}</span>{" "}
+          {total === 1 ? "incident" : "incidents"} in queue
+        </p>
+        {lastFetched && (
+          <span className={`poll-indicator${fresh ? " poll-indicator--fresh" : ""}`}>
+            <span className="poll-dot" />
+            updated {timeAgo(lastFetched.toISOString())}
+          </span>
+        )}
+      </div>
 
       <div className="toolbar-controls">
         {/* Verdict filter */}
@@ -403,22 +455,10 @@ function IncidentCard({ incident, onOpen }: { incident: Incident; onOpen: (id: s
 /* ---------- Main export ---------- */
 
 export function IncidentList({ onOpen }: { onOpen: (id: string) => void }) {
-  const [incidents, setIncidents] = useState<Incident[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { incidents, error, lastFetched, fresh } = usePolledIncidents();
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [verdictFilter, setVerdictFilter] = useState<VerdictFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-
-  useEffect(() => {
-    let cancelled = false;
-    listIncidents()
-      .then((rows) => { if (!cancelled) setIncidents(rows); })
-      .catch((err: unknown) => {
-        if (!cancelled)
-          setError(err instanceof ApiError ? err.message : "failed to load incidents");
-      });
-    return () => { cancelled = true; };
-  }, []);
 
   const filtered = useMemo(() => {
     if (!incidents) return [];
@@ -491,6 +531,8 @@ export function IncidentList({ onOpen }: { onOpen: (id: string) => void }) {
           onVerdictFilter={setVerdictFilter}
           statusFilter={statusFilter}
           onStatusFilter={setStatusFilter}
+          lastFetched={lastFetched}
+          fresh={fresh}
         />
         {filtered.length === 0 ? (
           <div className="filter-empty">
