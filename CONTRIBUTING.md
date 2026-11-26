@@ -1,4 +1,4 @@
-# Contributing to Avekshak
+# Contributing to Aavekshak
 
 Thank you for your interest in contributing! This document explains how to get started.
 
@@ -10,7 +10,7 @@ Please read it before contributing.
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/avekshak.git`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/aavekshak.git`
 3. Install dependencies: `pnpm install`
 4. Create a branch: `git checkout -b feat/your-feature-name`
 
@@ -48,7 +48,7 @@ pnpm test
 ## Project Structure
 
 ```
-avekshak/
+aavekshak/
 ├── services/
 │   ├── ingest/        # Connector pollers (CloudTrail, Wazuh, Syslog)
 │   ├── fusion/        # Detection engine + alert promotion
