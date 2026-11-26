@@ -81,3 +81,43 @@ export async function reject(id: string): Promise<DecisionResult> {
     body: "{}",
   });
 }
+
+/** Raw alert as stored — fired by a detection rule, no AI processing. */
+export interface RawAlert {
+  id: string;
+  eventId: string;
+  ruleId: string;
+  title: string;
+  severity: number;
+  ts: string;
+  actorIp?: string;
+  actorUser?: string;
+  targetHost?: string;
+}
+
+/** Raw event as stored — straight from the source connector, no AI processing. */
+export interface RawEvent {
+  id: string;
+  ts: string;
+  source: string;
+  category: string;
+  action: string;
+  outcome: string;
+  severity: number;
+  actor: { user?: string; ip?: string };
+  target: { host?: string; resource?: string; ip?: string };
+  location?: { country?: string; city?: string };
+  raw: Record<string, unknown>;
+}
+
+/** Fetch all alerts, most recent first. */
+export async function listAlerts(): Promise<RawAlert[]> {
+  const body = await request<{ alerts: RawAlert[] }>("/alerts");
+  return body.alerts;
+}
+
+/** Fetch all raw events, most recent first. */
+export async function listEvents(): Promise<RawEvent[]> {
+  const body = await request<{ events: RawEvent[] }>("/events");
+  return body.events;
+}
