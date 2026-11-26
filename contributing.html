@@ -572,7 +572,7 @@ footer { padding:48px 32px 56px;border-top:1px solid var(--line);text-align:cent
 
 <!-- Mobile TOC select -->
 <div class="mobile-toc">
-  <select onchange="location.href=this.value">
+  <select onchange="if(this.value.startsWith('#'))location.href=this.value">
     <option value="#setup">Jump to section…</option>
     <option value="#setup">01 · Dev Setup</option>
     <option value="#architecture">02 · Architecture</option>
