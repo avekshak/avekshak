@@ -1,3 +1,14 @@
+# [0.4.0](https://github.com/avekshak/avekshak/compare/v0.3.0...v0.4.0) (2026-11-26)
+
+### Bug Fixes
+
+* **ci:** bump ossf/scorecard-action from v2.4.0 to v2.4.1 ([#52](https://github.com/avekshak/avekshak/issues/52)) ([810970b](https://github.com/avekshak/avekshak/commit/810970bd200cb3cccfb30cf1d0e2f6d80d577f98))
+* **ci:** restore sync main→test to direct push ([#42](https://github.com/avekshak/avekshak/issues/42)) ([1a8eea8](https://github.com/avekshak/avekshak/commit/1a8eea8c08df089984d9addd579f0f209867c2ff)), closes [#37](https://github.com/avekshak/avekshak/issues/37)
+
+### Features
+
+* **web:** add Raw Logs drawer with auto-polling for alerts and events             ([#45](https://github.com/avekshak/avekshak/issues/45)) ([01af078](https://github.com/avekshak/avekshak/commit/01af07858e51a6c9ea2cae090748d87a15ccbaf3))
+
 # [0.3.0](https://github.com/avekshak/avekshak/compare/v0.2.0...v0.3.0) (2026-11-25)
 
 ### Bug Fixes
