@@ -197,27 +197,27 @@ importers:
         specifier: workspace:*
         version: link:../../packages/schema
       react:
-        specifier: ^18.3.1
-        version: 18.3.1
+        specifier: ^19.3.1
+        version: 19.3.1
       react-dom:
         specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
+        version: 18.3.1(react@19.3.1)
     devDependencies:
       '@avekshak/db':
         specifier: workspace:*
         version: link:../../packages/db
       '@types/react':
-        specifier: ^18.3.12
-        version: 18.3.31
+        specifier: ^19.3.0
+        version: 19.3.0
       '@types/react-dom':
         specifier: ^18.3.1
-        version: 18.3.7(@types/react@18.3.31)
+        version: 18.3.7(@types/react@19.3.0)
       '@vitejs/plugin-react':
         specifier: ^4.3.3
         version: 4.7.0(supports-color@7.2.0)(vite@5.4.21(@types/node@22.20.5))
       drizzle-orm:
         specifier: ^0.38.3
-        version: 0.38.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1)
+        version: 0.38.4(@types/react@19.3.0)(postgres@3.4.9)(react@19.3.1)
       tsx:
         specifier: ^4.19.2
         version: 4.23.15
@@ -238,7 +238,7 @@ importers:
         version: link:../schema
       drizzle-orm:
         specifier: ^0.38.3
-        version: 0.38.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1)
+        version: 0.38.4(@types/react@19.3.0)(postgres@3.4.9)(react@19.3.1)
       postgres:
         specifier: ^3.4.5
         version: 3.4.9
@@ -307,7 +307,7 @@ importers:
         version: link:../../packages/schema
       drizzle-orm:
         specifier: ^0.38.3
-        version: 0.38.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1)
+        version: 0.38.4(@types/react@19.3.0)(postgres@3.4.9)(react@19.3.1)
       ioredis:
         specifier: ^5.4.1
         version: 5.11.1(supports-color@7.2.0)
@@ -341,7 +341,7 @@ importers:
         version: link:../../packages/schema
       drizzle-orm:
         specifier: ^0.38.3
-        version: 0.38.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1)
+        version: 0.38.4(@types/react@19.3.0)(postgres@3.4.9)(react@19.3.1)
       fastify:
         specifier: ^5.1.0
         version: 5.12.8
@@ -375,7 +375,7 @@ importers:
         version: link:../../packages/schema
       drizzle-orm:
         specifier: ^0.38.3
-        version: 0.38.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1)
+        version: 0.38.4(@types/react@19.3.0)(postgres@3.4.9)(react@19.3.1)
       ioredis:
         specifier: ^5.4.1
         version: 5.11.1(supports-color@7.2.0)
@@ -412,7 +412,7 @@ importers:
         version: link:../../packages/schema
       drizzle-orm:
         specifier: ^0.36.4
-        version: 0.36.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1)
+        version: 0.36.4(@types/react@19.3.0)(postgres@3.4.9)(react@19.3.1)
       ioredis:
         specifier: ^5.4.1
         version: 5.11.1(supports-color@7.2.0)
@@ -452,7 +452,7 @@ importers:
         version: link:../../packages/schema
       drizzle-orm:
         specifier: ^0.38.3
-        version: 0.38.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1)
+        version: 0.38.4(@types/react@19.3.0)(postgres@3.4.9)(react@19.3.1)
       uuid:
         specifier: ^11.0.3
         version: 11.1.1
@@ -1546,16 +1546,13 @@ packages:
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
-  '@types/prop-types@15.7.15':
-    resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
-
   '@types/react-dom@18.3.7':
     resolution: {integrity: sha512-MEe3UeoENYVFXzoXEWsvcpg6ZvlrFNlOQ7EOsvhI3CfAXwzPfO8Qwuxd40nepsYKqyyVQnTdEfv68q91yLcKrQ==}
     peerDependencies:
       '@types/react': ^18.0.0
 
-  '@types/react@18.3.31':
-    resolution: {integrity: sha512-vfEqpXTvwT91yhmwdfouStN2hSKwTvyRs8qpLfADyrq/kxDw0hZM7Wk9Ug1FELj8hIby+S/+kQCSRFF32nv2Qw==}
+  '@types/react@19.3.0':
+    resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
 
   '@types/uuid@10.0.0':
     resolution: {integrity: sha512-7gqG38EyHgyP1S+7+xomFtL+ZNHcKv6DwNaCZmJmo1vgMugyF3TCnXVg4t1uk89mLNwnLtnY3TpOpCOyp1/xHQ==}
@@ -2978,8 +2975,8 @@ packages:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
 
-  react@18.3.1:
-    resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
+  react@19.3.1:
+    resolution: {integrity: sha512-QNhWdt7nrgVWWQG58QuGsAR3jv3Hbe4mb4vz7w2csnHavciZJgda1CPNaldF6eVxv90ud3jUXpKlHL69gO38yw==}
     engines: {node: '>=0.10.0'}
 
   read-package-up@11.0.0:
@@ -4383,15 +4380,12 @@ snapshots:
 
   '@types/normalize-package-data@2.4.4': {}
 
-  '@types/prop-types@15.7.15': {}
-
-  '@types/react-dom@18.3.7(@types/react@18.3.31)':
+  '@types/react-dom@18.3.7(@types/react@19.3.0)':
     dependencies:
-      '@types/react': 18.3.31
+      '@types/react': 19.3.0
 
-  '@types/react@18.3.31':
+  '@types/react@19.3.0':
     dependencies:
-      '@types/prop-types': 15.7.15
       csstype: 3.2.4
 
   '@types/uuid@10.0.0': {}
@@ -4748,17 +4742,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.36.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1):
+  drizzle-orm@0.36.4(@types/react@19.3.0)(postgres@3.4.9)(react@19.3.1):
     optionalDependencies:
-      '@types/react': 18.3.31
+      '@types/react': 19.3.0
       postgres: 3.4.9
-      react: 18.3.1
+      react: 19.3.1
 
-  drizzle-orm@0.38.4(@types/react@18.3.31)(postgres@3.4.9)(react@18.3.1):
+  drizzle-orm@0.38.4(@types/react@19.3.0)(postgres@3.4.9)(react@19.3.1):
     optionalDependencies:
-      '@types/react': 18.3.31
+      '@types/react': 19.3.0
       postgres: 3.4.9
-      react: 18.3.1
+      react: 19.3.1
 
   dunder-proto@1.0.1:
     dependencies:
@@ -5643,17 +5637,15 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-dom@18.3.1(react@18.3.1):
+  react-dom@18.3.1(react@19.3.1):
     dependencies:
       loose-envify: 1.4.0
-      react: 18.3.1
+      react: 19.3.1
       scheduler: 0.23.2
 
   react-refresh@0.17.0: {}
 
-  react@18.3.1:
-    dependencies:
-      loose-envify: 1.4.0
+  react@19.3.1: {}
 
   read-package-up@11.0.0:
     dependencies:
