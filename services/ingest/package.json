@@ -16,7 +16,7 @@
     "@avekshak/schema": "workspace:*",
     "@avekshak/queue": "workspace:*",
     "@avekshak/db": "workspace:*",
-    "drizzle-orm": "^0.38.3",
+    "drizzle-orm": "^0.45.4",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
