@@ -414,6 +414,41 @@ body {
   flex-wrap: wrap;
 }
 
+.list-toolbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@keyframes poll-flash {
+  0%   { opacity: 1; color: var(--accent); }
+  100% { opacity: 1; color: var(--muted);  }
+}
+
+.poll-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.3px;
+  transition: color 0.3s;
+}
+
+.poll-indicator--fresh {
+  animation: poll-flash 1.2s ease forwards;
+}
+
+.poll-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: pulse-dot 3s ease-in-out infinite;
+}
+
 .list-count {
   margin: 0;
   font-size: 12px;
