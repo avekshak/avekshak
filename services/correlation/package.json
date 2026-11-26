@@ -15,7 +15,7 @@
     "@avekshak/queue": "workspace:*",
     "@avekshak/db": "workspace:*",
     "drizzle-orm": "^0.38.3",
-    "ioredis": "^5.4.1",
+    "ioredis": "^6.1.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
