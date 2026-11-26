@@ -464,7 +464,7 @@ Browse issues labelled [`good first issue`](https://github.com/avekshak/avekshak
 
 <div align="center">
 
-*Built with the belief that security tooling should be transparent, auditable, and in the hands of the people who need it.*
+*Built with the belief that security tooling should be transparent, auditable, and in the hands of the people who need it most.*
 
 <br/>
 
