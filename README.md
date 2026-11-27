@@ -21,9 +21,8 @@
   5,000 raw alerts / day
           │
           ▼
-     ┌─────────┐
-     │Avekshak │   ──→   12 incidents   ──→   AI verdict   ──→   You decide
-     └─────────┘
+       Avekshak   ──→   12 incidents   ──→   AI verdict   ──→   You decide
+     
 ```
 
 > **The AI proposes. You decide. Nothing acts without your approval.**
@@ -78,38 +77,38 @@ Avekshak does the first pass automatically, entirely on your own infrastructure:
 ## Architecture
 
 ```
-                        ╔═══════════════════════════════════════════╗
+                        ╔══════════════════════════════════════════╗
   External sources      ║               Avekshak                   ║
-  ─────────────────     ║                                           ║
+  ─────────────────     ║                                          ║
                         ║  ┌──────────┐       ┌──────────┐         ║
   Syslog (UDP/TCP) ────────▶          │       │          │         ║
-  Wazuh JSON      ────────▶  ingest  ├──────▶  fusion  │         ║
-  AWS CloudTrail  ────────▶          │       │          │         ║
+  Wazuh JSON       ────────▶  ingest  ├──────▶  fusion   │         ║
+  AWS CloudTrail   ────────▶          │       │          │         ║
                         ║  └──────────┘       └────┬─────┘         ║
-                        ║  Normalise events    YAML rule engine     ║
-                        ║                          │ alerts         ║
+                        ║  Normalise events    YAML rule engine    ║
+                        ║                          │ alerts        ║
                         ║                     ┌────▼──────┐        ║
                         ║                     │correlation│        ║
                         ║                     └────┬──────┘        ║
-                        ║                     Group → incident      ║
-                        ║                          │                ║
+                        ║                     Group → incident     ║
+                        ║                          │               ║
                         ║                     ┌────▼──────┐        ║
                         ║                     │   agent   │        ║
                         ║                     │ LLM triage│        ║
                         ║                     │  + ledger │        ║
                         ║                     └────┬──────┘        ║
-                        ║                          │                ║
+                        ║                          │               ║
                         ║          ┌───────────────▼──────────┐    ║
-                        ║          │        PostgreSQL         │    ║
-                        ║          └───────────────────────────┘    ║
-                        ║                                           ║
+                        ║          │        PostgreSQL        │    ║
+                        ║          └──────────────────────────┘    ║
+                        ║                                          ║
                         ║  ┌───────────┐       ┌────────────────┐  ║
                         ║  │    api    │◀──────│   web console  │  ║
                         ║  │  Fastify  │       │  React + Vite  │  ║
                         ║  └───────────┘       └────────────────┘  ║
-                        ║                                           ║
-                        ║  Redis (BullMQ queues between services)   ║
-                        ╚═══════════════════════════════════════════╝
+                        ║                                          ║
+                        ║  Redis (BullMQ queues between services)  ║
+                        ╚══════════════════════════════════════════╝
 ```
 
 ### Services
