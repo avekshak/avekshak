@@ -1,29 +1,31 @@
 <div align="center">
 
-# 🛡 Avekshak
+# Avekshak
 
 ### Open-source · Self-hosted · AI-powered Security Operations Center
 
 <br/>
 
-[![CI](https://github.com/avekshak/avekshak/actions/workflows/ci.yml/badge.svg)](https://github.com/avekshak/avekshak/actions/workflows/ci.yml)
-[![Test Pipeline](https://github.com/avekshak/avekshak/actions/workflows/test-pipeline.yml/badge.svg)](https://github.com/avekshak/avekshak/actions/workflows/test-pipeline.yml)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/avekshak/avekshak/badge)](https://securityscorecards.dev/viewer/?uri=github.com/avekshak/avekshak)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/avekshak/avekshak)](https://github.com/avekshak/avekshak/releases)
-[![Node.js](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org)
-[![pnpm](https://img.shields.io/badge/pnpm-12%2B-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![CI](https://img.shields.io/github/actions/workflow/status/avekshak/avekshak/ci.yml?label=CI&style=flat-square)](https://github.com/avekshak/avekshak/actions/workflows/ci.yml)
+[![Test Pipeline](https://img.shields.io/github/actions/workflow/status/avekshak/avekshak/test-pipeline.yml?label=Tests&style=flat-square)](https://github.com/avekshak/avekshak/actions/workflows/test-pipeline.yml)
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/avekshak/avekshak?label=Scorecard&style=flat-square)](https://securityscorecards.dev/viewer/?uri=github.com/avekshak/avekshak)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/avekshak/avekshak?style=flat-square)](https://github.com/avekshak/avekshak/releases)
+[![Node.js](https://img.shields.io/badge/Node.js-22%2B-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
+[![pnpm](https://img.shields.io/badge/pnpm-12%2B-F69220?style=flat-square&logo=pnpm&logoColor=white)](https://pnpm.io)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 
 <br/>
 
-```
-  5,000 raw alerts / day
-          │
-          ▼
-       Avekshak   ──→   12 incidents   ──→   AI verdict   ──→   You decide
-     
-```
+**Your infrastructure generates thousands of security alerts every day.**
+**Avekshak reduces them to a handful of actionable incidents — triaged by AI, decided by you.**
+
+<br/>
+
+| 11,000+ alerts / day | → | ~12 incidents | → | AI verdict | → | You decide |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+
+<br/>
 
 > **The AI proposes. You decide. Nothing acts without your approval.**
 
@@ -41,74 +43,75 @@ Avekshak does the first pass automatically, entirely on your own infrastructure:
 
 | Step | What happens |
 |:---:|---|
-| 🔌 **Collect** | Pull raw events from Syslog, Wazuh, and AWS CloudTrail connectors |
-| 🔍 **Detect** | Run every event through a YAML-driven rule engine (11 built-in rules) |
-| 🔗 **Correlate** | Group related alerts into a single, actionable incident |
-| 🤖 **Investigate** | Local LLM agent triages each incident — no data leaves your machine |
-| 📋 **Record** | Every query, score, and piece of evidence goes into an immutable audit ledger |
-| 🧑‍💻 **Decide** | You approve or reject in a web console before anything acts |
+| **Collect** | Pull raw events from Syslog, Wazuh, and AWS CloudTrail connectors |
+| **Detect** | Run every event through a YAML-driven rule engine (11 built-in rules) |
+| **Correlate** | Group related alerts into a single, actionable incident |
+| **Investigate** | Local LLM agent triages each incident — no data leaves your machine |
+| **Record** | Every query, score, and piece of evidence goes into an immutable audit ledger |
+| **Decide** | You approve or reject in a web console before anything acts |
 
 ---
 
 ## Core Principles
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  🔒  Human in the loop     │  AI proposes, humans decide.           │
-│                            │  Nothing acts without approval.        │
-├─────────────────────────────────────────────────────────────────────┤
-│  🏠  Fully self-hosted     │  AI runs locally via Ollama.           │
-│                            │  No data, prompts, or results leave    │
-│                            │  your machine.                         │
-├─────────────────────────────────────────────────────────────────────┤
-│  💸  No API keys needed    │  No per-query fees. No external AI     │
-│                            │  dependencies in production.           │
-├─────────────────────────────────────────────────────────────────────┤
-│  🔎  Transparent reasoning │  Every agent step is recorded,         │
-│                            │  timestamped, and auditable.           │
-├─────────────────────────────────────────────────────────────────────┤
-│  📖  Open source           │  MIT licensed. Fork it, modify it,     │
-│                            │  self-host it.                         │
-└─────────────────────────────────────────────────────────────────────┘
-```
+| Principle | Description |
+|---|---|
+| **Human in the loop** | AI proposes, humans decide. Nothing acts without approval. |
+| **Fully self-hosted** | AI runs locally via Ollama. No data, prompts, or results leave your machine. |
+| **No API keys needed** | No per-query fees. No external AI dependencies in production. |
+| **Transparent reasoning** | Every agent step is recorded, timestamped, and auditable. |
+| **Open source** | MIT licensed. Fork it, modify it, self-host it. |
 
 ---
 
 ## Architecture
 
-```
-                        ╔══════════════════════════════════════════╗
-  External sources      ║               Avekshak                   ║
-  ─────────────────     ║                                          ║
-                        ║  ┌──────────┐       ┌──────────┐         ║
-  Syslog (UDP/TCP) ────────▶          │       │          │         ║
-  Wazuh JSON       ────────▶  ingest  ├──────▶  fusion   │         ║
-  AWS CloudTrail   ────────▶          │       │          │         ║
-                        ║  └──────────┘       └────┬─────┘         ║
-                        ║  Normalise events    YAML rule engine    ║
-                        ║                          │ alerts        ║
-                        ║                     ┌────▼──────┐        ║
-                        ║                     │correlation│        ║
-                        ║                     └────┬──────┘        ║
-                        ║                     Group → incident     ║
-                        ║                          │               ║
-                        ║                     ┌────▼──────┐        ║
-                        ║                     │   agent   │        ║
-                        ║                     │ LLM triage│        ║
-                        ║                     │  + ledger │        ║
-                        ║                     └────┬──────┘        ║
-                        ║                          │               ║
-                        ║          ┌───────────────▼──────────┐    ║
-                        ║          │        PostgreSQL        │    ║
-                        ║          └──────────────────────────┘    ║
-                        ║                                          ║
-                        ║  ┌───────────┐       ┌────────────────┐  ║
-                        ║  │    api    │◀──────│   web console  │  ║
-                        ║  │  Fastify  │       │  React + Vite  │  ║
-                        ║  └───────────┘       └────────────────┘  ║
-                        ║                                          ║
-                        ║  Redis (BullMQ queues between services)  ║
-                        ╚══════════════════════════════════════════╝
+Raw events flow from external sources through the detection and correlation pipeline, get triaged by an LLM agent, and surface in a web console for human review.
+
+```mermaid
+flowchart TD
+    subgraph Sources["External Sources"]
+        direction LR
+        S1["Syslog (UDP/TCP)"]
+        S2["Wazuh JSON"]
+        S3["AWS CloudTrail"]
+    end
+
+    subgraph Pipeline["Avekshak Pipeline"]
+        direction TD
+        I["ingest\nNormalise events"]
+        F["fusion\nYAML rule engine"]
+        C["correlation\nGroup alerts → incident"]
+        A["agent\nLLM triage + ledger"]
+        R[("Redis\nBullMQ")]
+
+        I -->|detect queue| F
+        F -->|correlate queue| C
+        C -->|triage queue| A
+        R -.- I & F & C & A
+    end
+
+    subgraph UI["Human-in-the-Loop"]
+        direction LR
+        WEB["web console\nReact + Vite"]
+        API["api / Fastify"]
+        H["Analyst\nApprove / Reject"]
+
+        WEB --> API --> H
+    end
+
+    DB[("PostgreSQL")]
+
+    Sources --> I
+    A --> UI
+    H -->|verdict| DB
+    API --> DB
+
+    style Sources fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+    style Pipeline fill:#dcfce7,stroke:#22c55e,stroke-width:2px
+    style UI fill:#fef9c3,stroke:#eab308,stroke-width:2px
+    style DB fill:#f3e8ff,stroke:#a855f7,stroke-width:2px
+    style R fill:#fee2e2,stroke:#ef4444,stroke-width:2px
 ```
 
 ### Services
@@ -161,13 +164,15 @@ Avekshak does the first pass automatically, entirely on your own infrastructure:
 | [Node.js](https://nodejs.org) | 22+ | — |
 | [pnpm](https://pnpm.io) | 12+ | `npm install -g pnpm` |
 
-### 1 — Pull the LLM model
+### Steps
+
+**1. Pull the LLM model**
 
 ```bash
 ollama pull llama3.2:3b
 ```
 
-### 2 — Clone and install
+**2. Clone and install**
 
 ```bash
 git clone https://github.com/avekshak/avekshak.git
@@ -175,7 +180,7 @@ cd avekshak
 pnpm install
 ```
 
-### 3 — Configure environment
+**3. Configure environment**
 
 ```bash
 cp .env.example .env
@@ -197,20 +202,20 @@ LLM_PROVIDER=ollama          # set to "claude" to use Anthropic Claude instead
 
 </details>
 
-### 4 — Start infrastructure
+**4. Start infrastructure**
 
 ```bash
 docker compose up -d        # starts Postgres (5433), Redis (6379), Ollama (11434)
 ```
 
-### 5 — Build and migrate
+**5. Build and migrate**
 
 ```bash
 pnpm build
 pnpm --filter @avekshak/db --env-file=.env migrate
 ```
 
-### 6 — Start all services
+**6. Start all services**
 
 Open five terminal tabs and run one per tab:
 
@@ -222,13 +227,13 @@ pnpm --filter @avekshak/agent       --env-file=.env start
 pnpm --filter @avekshak/web         --env-file=.env dev
 ```
 
-### 7 — Open the dashboard
+**7. Open the dashboard**
 
 ```
 http://localhost:5173
 ```
 
-### 8 — Seed demo data _(optional)_
+**8. Seed demo data** _(optional)_
 
 ```bash
 pnpm --filter @avekshak/web --env-file=.env seed
@@ -432,11 +437,10 @@ We welcome contributions of all kinds. Please read [CONTRIBUTING.md](CONTRIBUTIN
 
 **Quick checklist:**
 
+- [ ] **PR targets the `test` branch — not `main`**
 - [ ] Fork the repo and create a branch (`feat/your-feature-name`)
-- [ ] PR targets the **`test`** branch — not `main`
 - [ ] Tests added or updated for your changes
 - [ ] All tests pass locally: `pnpm test`
-- [ ] Agree to the [CLA](CLA.md)
 - [ ] Follow the [Code of Conduct](CODE_OF_CONDUCT.md)
 - [ ] Report security issues privately per [SECURITY.md](SECURITY.md)
 
@@ -446,12 +450,12 @@ Browse issues labelled [`good first issue`](https://github.com/avekshak/avekshak
 
 ## Team
 
-| Name | GitHub | Role |
-|---|---|---|
-| Kunal Kumar Dey | [@kunal2303](https://github.com/kunal2303) | Maintainer |
-| Anurag Shrivastava | — | Contributor |
-| Bhumi Budhiraja | — | Contributor |
-| Urooj Fatima | [@urooj-bits](https://github.com/urooj-bits) | Contributor |
+| Name | Role |
+|---|---|
+| [Kunal Kumar Dey](https://github.com/kunal2303) | Maintainer |
+| Anurag Shrivastava | Maintainer |
+| Bhumi Budhiraja | Maintainer |
+| [Urooj Fatima](https://github.com/urooj-bits) | Maintainer |
 
 ---
 
